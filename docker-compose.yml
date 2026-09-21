@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: nwm-backend
+    env_file:
+      - .env
+    ports:
+      - "${NWM_BACKEND_PORT:-8000}:8000"
+    volumes:
+      - nwm-data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.frontend
+    container_name: nwm-frontend
+    depends_on:
+      - backend
+    ports:
+      - "${NWM_FRONTEND_PORT:-8080}:80"
+    restart: unless-stopped
+
+volumes:
+  nwm-data:
