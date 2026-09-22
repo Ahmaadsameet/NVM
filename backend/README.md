@@ -85,12 +85,12 @@ docker compose down
 
 The SQLite database persists in the `nwm-data` Docker volume.
 
-The root `.env` is the only runtime environment file. Copy `.env.example` to
-`.env` for a new deployment, then set the private token and SMTP values. Docker
-Compose uses `NWM_FRONTEND_PORT` for the public frontend mapping and passes the
-same root file to the backend container. `NWM_DATABASE_PATH` must remain
-`/app/data/nwm.sqlite3` in Compose so it points into the persistent `nwm-data`
-volume.
+The root `.env` is the only runtime environment file. Provide that private
+file on the staging or production server before starting Compose; do not
+commit it. Docker Compose uses `NWM_FRONTEND_PORT` for the public frontend
+mapping and passes the same root file to the backend container.
+`NWM_DATABASE_PATH` must remain `/app/data/nwm.sqlite3` in Compose so it points
+into the persistent `nwm-data` volume.
 
 For a public server, place the frontend behind an HTTPS reverse proxy and
 forward traffic to port `8080`. Keep the backend container private. Set
@@ -119,12 +119,12 @@ NWM_SMTP_PASSWORD=your-gmail-app-password
 NWM_SMTP_SENDER=your-sending-account@gmail.com
 ```
 
-The safe variable template is available in `.env.example`. Keep `.env`
-private and never commit it. Docker Compose loads `.env` directly into the
-backend container; the frontend container does not receive SMTP settings.
+Keep `.env` private and never commit it. Docker Compose loads `.env` directly
+into the backend container; the frontend container does not receive SMTP
+settings.
 
 Do not put passwords, API keys, private certificates, or service-account files
-in frontend source, `VITE_*` variables, or `.env.example`. Anything exposed to
+in frontend source or `VITE_*` variables. Anything exposed to
 the Vite frontend can be downloaded by website visitors.
 
 Then restart the stack:
