@@ -8,15 +8,17 @@ export function BookingSection({ state, onSubmit, onBriefSubmit, onToggleBrief }
       <SectionLabel>TELL US WHAT YOU&apos;RE BUILDING</SectionLabel>
       <h2 className="book-title"><span>Book a</span> <em>Call.</em></h2>
       <p>A 20 minute intro with our production team. Bring a product, a tech pack, or just an idea of quantities.</p>
-      <form onSubmit={onSubmit}>
+      <form id="inquiry-form" onSubmit={onSubmit}>
         {state.submitted ? <div className="success">Thanks — we&apos;ll be in touch shortly.</div> : <>
           <div className="form-grid"><label>Name<input name="name" required type="text" placeholder="Your name" /></label><label>Email<input name="email" required type="email" placeholder="you@brand.com" /></label></div>
           <label>Tell us about your project<textarea name="message" required minLength="10" placeholder="What are you building?" rows="4" /></label>
           {state.submitError && <p className="form-error" role="alert">{state.submitError}</p>}
-          <button className="solid-button" type="submit" disabled={state.submitting}>{state.submitting ? "SENDING..." : "SEND INQUIRY"} {!state.submitting && <ArrowUpRight size={16} />}</button>
         </>}
       </form>
-      <button className="brief-toggle" type="button" onClick={onToggleBrief}>{state.briefOpen ? "CLOSE PROJECT BRIEF" : "BUILD A DETAILED PROJECT BRIEF"} <ArrowUpRight size={15} /></button>
+      <div className="booking-actions">
+        <button className="brief-toggle" type="button" onClick={onToggleBrief}>{state.briefOpen ? "CLOSE PROJECT BRIEF" : "BUILD A DETAILED PROJECT BRIEF"} <ArrowUpRight size={15} /></button>
+        {!state.submitted && <button className="solid-button inquiry-submit" type="submit" form="inquiry-form" disabled={state.submitting}>{state.submitting ? "SENDING..." : "SEND INQUIRY"} {!state.submitting && <ArrowUpRight size={16} />}</button>}
+      </div>
       {state.briefOpen && <ProjectBrief state={state} onSubmit={onBriefSubmit} />}
     </section>
   );

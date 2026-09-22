@@ -1,12 +1,34 @@
 import React from "react";
 import { ArrowUpRight, Check } from "lucide-react";
-import { capabilityImages, closingImage, selectedWorkImages } from "../data/images";
+import { capabilityGalleries, capabilityImages, closingImage, selectedWorkImages } from "../data/images";
 import { capabilities, processSteps } from "../data/siteContent";
 import { SectionLabel } from "./SiteChrome";
 
 export function Ticker() {
-  const items = "DENIM · LEATHERWEAR · BIKERWEAR · FASHIONWEAR · KNITWEAR · SPORTSWEAR ·  ";
-  return <div className="ticker"><div>{items}</div><div>{items}</div></div>;
+  const items = "DENIM · LEATHERWEAR · BIKERWEAR · FASHIONWEAR · KNITWEAR · SPORTSWEAR · ";
+  const tickerRef = React.useRef(null);
+  const itemRef = React.useRef(null);
+  const [repeatCount, setRepeatCount] = React.useState(1);
+
+  React.useLayoutEffect(() => {
+    const updateRepeats = () => {
+      const itemWidth = itemRef.current.getBoundingClientRect().width;
+      if (itemWidth) setRepeatCount(Math.max(1, Math.ceil(tickerRef.current.clientWidth / itemWidth)));
+    };
+    const observer = new ResizeObserver(updateRepeats);
+    observer.observe(tickerRef.current);
+    observer.observe(itemRef.current);
+    updateRepeats();
+    return () => observer.disconnect();
+  }, []);
+
+  return <div className="ticker" ref={tickerRef}>
+    <div className="ticker-track" style={{ "--ticker-duration": `${repeatCount * 32}s` }}>
+      {[0, 1].map(group => <div className="ticker-group" key={group} aria-hidden={group === 1 ? true : undefined}>
+        {Array.from({ length: repeatCount }, (_, index) => <span className="ticker-items" key={index} ref={group === 0 && index === 0 ? itemRef : undefined} aria-hidden={index > 0 ? true : undefined}>{items}</span>)}
+      </div>)}
+    </div>
+  </div>;
 }
 
 export function IntroSection() {
@@ -14,7 +36,20 @@ export function IntroSection() {
 }
 
 export function CapabilitiesSection() {
-  return <section className="capabilities section-pad" id="make"><div className="section-heading"><div><SectionLabel>01 / WHAT WE MAKE</SectionLabel><h2>Made for the way<br /><em>you</em> build.</h2></div><p>From first sample to final shipment, we work across the categories that define modern wardrobes.</p></div><div className="capability-grid">{capabilities.map(([name, text, imageKey], index) => <a className="capability-card" href="#book" key={name}><div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} /></div><div className="card-meta"><h3>{name}</h3><span>0{index + 1}</span></div><p>{text}</p></a>)}</div></section>;
+  return <section className="capabilities section-pad" id="make">
+    <div className="section-heading"><div><SectionLabel>01 / WHAT WE MAKE</SectionLabel><h2>Made for the way<br /><em>you</em> build.</h2></div><p>From first sample to final shipment, we work across the categories that define modern wardrobes.</p></div>
+    <div className="capability-grid">{capabilities.map(([name, text, imageKey], index) => <article className="capability-card" tabIndex="0" key={name}>
+      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} /></div>
+      <div className="capability-hover-preview" aria-hidden="true">
+        <span className="capability-preview-title">{name} / 0{index + 1}</span>
+        <div className="capability-preview-grid">{capabilityGalleries[imageKey].map((image, photoIndex) => image
+          ? <img src={image} alt="" key={photoIndex} />
+          : <span className="capability-preview-placeholder" key={photoIndex}>0{photoIndex + 1}</span>
+        )}</div>
+      </div>
+      <div className="card-meta"><h3>{name}</h3><span>0{index + 1}</span></div><p>{text}</p>
+    </article>)}</div>
+  </section>;
 }
 
 export function ProcessSection() {

@@ -1,0 +1,9 @@
+.ticker { display: flex; justify-content: flex-end; padding: 16px 0; overflow: hidden; color: #17170f; border-bottom: 1px solid #e3e3e0; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; white-space: nowrap; }
+.ticker-track { display: flex; flex: none; animation: marquee var(--ticker-duration) linear infinite; }
+.ticker-group { display: flex; flex: none; }
+.ticker-items { flex: none; white-space: pre; }
+
+@keyframes marquee {
+  from { transform: translateX(50%); }
+  to { transform: translateX(0); }
+}

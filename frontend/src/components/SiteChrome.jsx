@@ -13,7 +13,7 @@ export class ScrollEffects extends React.Component {
       (entries) => entries.forEach((entry) => entry.target.classList.toggle("is-visible", entry.isIntersecting)),
       { threshold: 0.12 }
     );
-    document.querySelectorAll("main > section:not(.hero), .ticker").forEach((section) => {
+    document.querySelectorAll("main > section:not(.hero)").forEach((section) => {
       section.classList.add("scroll-reveal");
       this.observer.observe(section);
     });
@@ -33,16 +33,46 @@ export class ScrollEffects extends React.Component {
   }
 }
 
+const NAV_LINKS = [
+  { id: "make", label: "CAPABILITIES" },
+  { id: "process", label: "PROCESS" },
+  { id: "quality", label: "QUALITY" },
+  { id: "work", label: "WORK" },
+];
+
+export function useActiveSection(ids) {
+  const [active, setActive] = React.useState(ids[0]);
+
+  React.useEffect(() => {
+    const sections = ids.map((id) => document.getElementById(id)).filter(Boolean);
+    if (!sections.length) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActive(visible.target.id);
+      },
+      { rootMargin: "-35% 0px -55% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [ids]);
+
+  return active;
+}
+
 export function Header({ menuOpen, onToggle }) {
+  const activeId = useActiveSection(React.useMemo(() => NAV_LINKS.map((link) => link.id), []));
+
   return (
     <header className="site-header">
       <a className="brand" href="#top" aria-label="North Weave Mills home">
-        <span className="brand-mark">N</span>
-        <span>NORTH WEAVE MILLS</span>
+        <img className="brand-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" />
       </a>
       <nav className={`desktop-nav ${menuOpen ? "hidden" : ""}`}>
-        {["make", "process", "quality", "work"].map((id, i) => (
-          <a key={id} href={`#${id}`}>{["CAPABILITIES", "PROCESS", "QUALITY", "WORK"][i]}</a>
+        {NAV_LINKS.map(({ id, label }) => (
+          <a key={id} className={`nav-pill ${activeId === id ? "is-active" : ""}`} href={`#${id}`}>
+            {label}
+          </a>
         ))}
         <a className="outline-button" href="#book">BOOK A CALL</a>
       </nav>
@@ -58,7 +88,7 @@ export function MobileMenu({ open, onClose }) {
   return (
     <div className="mobile-menu">
       <div className="mobile-menu-top">
-        <span className="brand"><span className="brand-mark">N</span><span>NORTH WEAVE MILLS</span></span>
+        <span className="brand"><img className="brand-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" /></span>
         <button onClick={onClose}>CLOSE <X size={16} /></button>
       </div>
       <nav>

@@ -1,0 +1,63 @@
+.capability-hover-preview {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  z-index: 3;
+  width: min(300px, calc(100% - 28px));
+  padding: 13px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 10px) scale(.97);
+  color: var(--paper);
+  background: rgba(20, 20, 19, .94);
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 15px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .26);
+  backdrop-filter: blur(10px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.capability-card:hover .capability-hover-preview,
+.capability-card:focus-visible .capability-hover-preview {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+.capability-preview-title {
+  display: block;
+  margin-bottom: 10px;
+  font: 600 9px "IBM Plex Mono", monospace;
+  letter-spacing: .12em;
+}
+
+.capability-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.capability-preview-grid img,
+.capability-preview-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.capability-preview-grid img {
+  object-fit: cover;
+  filter: saturate(.82);
+}
+
+.capability-preview-placeholder {
+  color: #7d7d78;
+  background: #2b2b29;
+  border: 1px dashed #50504c;
+  font: 9px "IBM Plex Mono", monospace;
+}
+
+@media (max-width: 760px) {
+  .capability-hover-preview { width: min(280px, calc(100% - 24px)); }
+}

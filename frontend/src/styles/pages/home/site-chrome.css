@@ -1,0 +1,31 @@
+.site-header {
+  position: fixed;
+  inset: 14px 0 auto;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(920px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 11px 17px 11px 21px;
+  color: #fafaf9;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  background: rgba(14, 14, 13, .84);
+  box-shadow: 0 12px 34px rgba(22, 22, 20, .18), 0 2px 8px rgba(22, 22, 20, .1);
+  backdrop-filter: blur(14px);
+  transition: box-shadow .35s ease, background-color .35s ease, transform .35s ease;
+}
+
+html.has-scrolled .site-header {
+  background: rgba(14, 14, 13, .92);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, .36), 0 2px 8px rgba(0, 0, 0, .2);
+}
+
+.brand { display: flex; align-items: center; white-space: nowrap; }
+.brand-logo { display: block; width: auto; height: 32px; object-fit: contain; }
+.brand-mark, .monogram { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid currentColor; border-radius: 50%; font: 500 13px "IBM Plex Mono", monospace; letter-spacing: 0; }
+.desktop-nav { display: flex; align-items: center; gap: clamp(10px, 1.6vw, 18px); font-size: 11px; font-weight: 500; letter-spacing: .13em; }
+.desktop-nav a:not(.outline-button):not(.nav-pill) { color: inherit; }
+.menu-button { display: none; min-width: 44px; min-height: 44px; color: inherit; background: transparent; border: 0; cursor: pointer; }
+.mobile-menu { display: none; }
