@@ -2,6 +2,8 @@
 .env.*
 *.env
 *.env.*
+# Only the root template is public; it must contain no credentials.
+!/.env.example
 .npmrc
 .pypirc
 .netrc

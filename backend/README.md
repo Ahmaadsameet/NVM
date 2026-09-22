@@ -36,22 +36,23 @@ Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 
 ## Docker
 
-Build and run the backend image:
+For the complete local checks and Azure Ubuntu VM deployment commands, see
+[the deployment guide](../DEPLOYMENT.md).
+
+Build and run both services from the project root:
 
 ```powershell
-docker build -f Dockerfile.backend -t nwm-backend .
-docker run --rm -p 8000:8000 -v nwm-data:/app/data nwm-backend
+docker compose config --quiet
+docker compose up --build --wait
 ```
 
-Build the frontend image:
+Compose builds `nginx/Dockerfile` with the project root as its context. Its
+build stage runs `npm ci` and `npm run build`; Nginx serves the resulting
+static files. The backend uses the root `requirements.txt` and runs
+`uvicorn backend.app.main:app --host 0.0.0.0 --port 8000`.
 
-```powershell
-docker build -f frontend/Dockerfile.frontend -t nwm-frontend .
-docker run --rm -p 8080:80 --add-host=backend:host-gateway nwm-frontend
-```
-
-The frontend Nginx configuration proxies `/api/*` requests to the backend
-service at `http://backend:8000`. This internal service name is the
+The Nginx configuration in the root-level `nginx/` folder proxies `/api/*`
+requests to the backend service at `http://backend:8000`. This internal service name is the
 relationship between the frontend and backend containers; browser requests
 continue to use relative `/api/*` URLs.
 
@@ -74,7 +75,7 @@ docker compose up --build
 
 Then open:
 
-- Frontend: `http://127.0.0.1:8080`
+- Frontend: `http://127.0.0.1`
 - Backend API docs are internal and are not published by Compose.
 
 Stop both containers with:
@@ -87,20 +88,22 @@ The SQLite database persists in the `nwm-data` Docker volume.
 
 The root `.env` is the only runtime environment file. Provide that private
 file on the staging or production server before starting Compose; do not
-commit it. Docker Compose uses `NWM_FRONTEND_PORT` for the public frontend
-mapping and passes the same root file to the backend container.
-`NWM_DATABASE_PATH` must remain `/app/data/nwm.sqlite3` in Compose so it points
-into the persistent `nwm-data` volume.
+commit it. Start from the credential-free root `.env.example` on a new host.
+Docker Compose publishes Nginx on port 80 and passes `.env` only to the backend
+container. `NWM_FRONTEND_PORT` is no longer used. Compose fixes
+`NWM_DATABASE_PATH` at `/app/data/nwm.sqlite3` so the database and its sidecar
+files always reside in the persistent `nwm-data` volume.
 
-For a public server, place the frontend behind an HTTPS reverse proxy and
-forward traffic to port `8080`. Keep the backend container private. Set
-`NWM_CORS_ORIGINS` to the exact HTTPS frontend origin and configure a long
-random `NWM_ADMIN_TOKEN` in the private `.env` file. Use that token as
-`X-Admin-Token` only from a trusted administrative client when reading
-inquiries.
+This demo is served over HTTP on port 80. Use sample data until HTTPS is
+configured. Keep port 8000 private. Browser requests use the same origin, so
+`NWM_CORS_ORIGINS` may be blank. Configure a long random `NWM_ADMIN_TOKEN` in
+the private `.env` file and use it as `X-Admin-Token` only from a trusted
+administrative client over an SSH tunnel or HTTPS when reading inquiries.
 
 Back up the `nwm-data` Docker volume regularly. The application does not
-provide automatic backups.
+provide automatic backups. Do not run `docker compose down -v`, which removes
+the database volume. The local `backend/nwm.sqlite3` is not copied into the
+image; a new VM starts with an empty database unless you restore a backup.
 
 ## Email notifications
 

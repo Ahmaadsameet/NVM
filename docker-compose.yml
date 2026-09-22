@@ -6,6 +6,9 @@ services:
     container_name: nwm-backend
     env_file:
       - .env
+    environment:
+      # Always keep SQLite in the persistent volume, even with a local .env.
+      NWM_DATABASE_PATH: /app/data/nwm.sqlite3
     volumes:
       - nwm-data:/app/data
     restart: unless-stopped
@@ -19,13 +22,13 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: frontend/Dockerfile.frontend
+      dockerfile: nginx/Dockerfile
     container_name: nwm-frontend
     depends_on:
       backend:
         condition: service_healthy
     ports:
-      - "${NWM_FRONTEND_PORT:-8080}:80"
+      - "80:80"
     restart: unless-stopped
 
 volumes:
