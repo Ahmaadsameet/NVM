@@ -115,13 +115,19 @@ NWM_NOTIFICATION_EMAIL=your-recipient@example.com
 NWM_SMTP_HOST=smtp.gmail.com
 NWM_SMTP_PORT=587
 NWM_SMTP_USERNAME=your-sending-account@gmail.com
-NWM_SMTP_PASSWORD=your-gmail-app-password
+NWM_SMTP_PASSWORD=
 NWM_SMTP_SENDER=your-sending-account@gmail.com
 ```
 
 Keep `.env` private and never commit it. Docker Compose loads `.env` directly
 into the backend container; the frontend container does not receive SMTP
 settings.
+
+Fill in `NWM_SMTP_PASSWORD` only in the private root `.env`. The blank value
+above is intentional. Git and Docker exclude environment files, private keys,
+and credential files, including copies in subdirectories. Vite does not load
+environment files or expose prefixed environment variables to browser code.
+Nginx rejects requests for hidden files and common credential/database files.
 
 Do not put passwords, API keys, private certificates, or service-account files
 in frontend source or `VITE_*` variables. Anything exposed to
