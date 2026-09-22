@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
 import sqlite3
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
+from ..auth import require_admin_token
 from ..database import get_connection
 from ..notifications import send_notification
 from ..schemas import Inquiry, InquiryCreate
@@ -45,7 +46,7 @@ def create_inquiry(payload: InquiryCreate) -> Inquiry:
     return inquiry
 
 
-@router.get("", response_model=list[Inquiry])
+@router.get("", response_model=list[Inquiry], dependencies=[Depends(require_admin_token)])
 def list_inquiries() -> list[Inquiry]:
     with get_connection() as connection:
         rows = connection.execute(

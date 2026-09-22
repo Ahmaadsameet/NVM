@@ -24,7 +24,7 @@ The backend is organized by responsibility:
 
 - `GET /api/health` — service health check
 - `POST /api/inquiries` — save an inquiry
-- `GET /api/inquiries` — list saved inquiries
+- `GET /api/inquiries` — list saved inquiries; requires the `X-Admin-Token` header
 
 Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 
@@ -66,7 +66,7 @@ docker compose up --build
 Then open:
 
 - Frontend: `http://127.0.0.1:8080`
-- Backend API docs: `http://127.0.0.1:8000/docs`
+- Backend API docs are internal and are not published by Compose.
 
 Stop both containers with:
 
@@ -75,6 +75,16 @@ docker compose down
 ```
 
 The SQLite database persists in the `nwm-data` Docker volume.
+
+For a public server, place the frontend behind an HTTPS reverse proxy and
+forward traffic to port `8080`. Keep the backend container private. Set
+`NWM_CORS_ORIGINS` to the exact HTTPS frontend origin and configure a long
+random `NWM_ADMIN_TOKEN` in the private `.env` file. Use that token as
+`X-Admin-Token` only from a trusted administrative client when reading
+inquiries.
+
+Back up the `nwm-data` Docker volume regularly. The application does not
+provide automatic backups.
 
 ## Email notifications
 

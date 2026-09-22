@@ -1,0 +1,41 @@
+import React from "react";
+import { ArrowUpRight, Check } from "lucide-react";
+import { capabilityImages, closingImage, selectedWorkImages } from "../data/images";
+import { capabilities, processSteps } from "../data/siteContent";
+import { SectionLabel } from "./SiteChrome";
+
+export function Ticker() {
+  const items = "DENIM · LEATHERWEAR · BIKERWEAR · FASHIONWEAR · KNITWEAR · SPORTSWEAR ·  ";
+  return <div className="ticker"><div>{items}</div><div>{items}</div></div>;
+}
+
+export function IntroSection() {
+  return <section className="intro section-pad" id="stats"><span className="monogram">NW</span><p className="statement">We give apparel brands a production partner they can <em>build on.</em></p><div className="stats">{[["01", "ACCOUNTABLE PARTNER"], ["02", "COUNTRIES SERVED"], ["06–08", "WEEKS TO SHIP"]].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div></section>;
+}
+
+export function CapabilitiesSection() {
+  return <section className="capabilities section-pad" id="make"><div className="section-heading"><div><SectionLabel>01 / WHAT WE MAKE</SectionLabel><h2>Made for the way<br /><em>you</em> build.</h2></div><p>From first sample to final shipment, we work across the categories that define modern wardrobes.</p></div><div className="capability-grid">{capabilities.map(([name, text, imageKey], index) => <a className="capability-card" href="#book" key={name}><div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} /></div><div className="card-meta"><h3>{name}</h3><span>0{index + 1}</span></div><p>{text}</p></a>)}</div></section>;
+}
+
+export function ProcessSection() {
+  return <section className="process section-pad" id="process"><div className="section-topline"><SectionLabel>02 / END TO END</SectionLabel><SectionLabel>INQUIRY TO DELIVERY</SectionLabel></div><h2>Five steps. One <em>accountable</em> partner.</h2><div className="process-list">{processSteps.map(([number, title, text]) => <div className="process-row" key={number}><span className="step-number">{number}</span><div><h3>{title}</h3><p>{text}</p></div><span className="row-arrow">↗</span></div>)}</div></section>;
+}
+
+export function QualitySection() {
+  const rows = [["PARTNER", "TTI Labs, independent inspection and testing"], ["ACCREDITATION", "ISO/IEC 17020 and ISO 17025"], ["SCOPE", "Every order, inspected and tested before shipment"], ["OUTPUT", "Documented inspection results per order"]];
+  return <section className="quality section-pad" id="quality"><div><SectionLabel>03 / QUALITY CONTROL</SectionLabel><h2>Tested before<br />it <em>ships.</em></h2><p>Every order is inspected and tested through TTI Labs, an independent inspection and testing partner accredited to ISO/IEC 17020 and ISO 17025.</p></div><div className="quality-panel">{rows.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}<small>Accreditations are held by TTI Labs as an independent partner.</small></div></section>;
+}
+
+export function DifferenceSection() {
+  const typical = ["Fragmented communication through agents and brokers", "Timelines slip without notice", "Quality varies batch to batch", "No accountable partner in your jurisdiction"];
+  const nwm = ["One accountable partner, first sample to final delivery", "Fixed schedule, 6 to 8 weeks sample to shipment", "Every order independently inspected by TTI Labs", "German contract, invoicing and customs handled"];
+  return <section className="difference section-pad"><SectionLabel>04 / THE DIFFERENCE</SectionLabel><h2>Partner, not supplier.</h2><div className="comparison"><div className="comparison-card muted"><SectionLabel>THE TYPICAL OVERSEAS SUPPLIER</SectionLabel>{typical.map(item => <p key={item}><span>×</span>{item}</p>)}</div><div className="comparison-card bright"><div className="mini-brand"><span className="brand-mark">N</span> NORTH WEAVE MILLS</div>{nwm.map(item => <p key={item}><Check size={16} /><span>{item}</span></p>)}</div></div></section>;
+}
+
+export function WorkSection() {
+  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>05 / SELECTED WORK</SectionLabel><h2>Details that<br /><em>hold up.</em></h2></div><a className="text-link" href="#book">START A PROJECT <ArrowUpRight size={16} /></a></div><div className="work-grid"><figure className="large"><img src={selectedWorkImages.productionFloor} alt="Apparel production detail" /><figcaption>PRODUCTION FLOOR</figcaption></figure><figure><img src={selectedWorkImages.denimWash} alt="Denim wash detail" /><figcaption>DENIM WASH</figcaption></figure><figure><img src={selectedWorkImages.fabricFinishing} alt="Fabric detail" /><figcaption>FABRIC & FINISHING</figcaption></figure></div></section>;
+}
+
+export function ClosingSection() {
+  return <section className="closing"><img src={closingImage} alt="" /><div><span className="monogram light">NW</span><p>Production your brand can <em>build on.</em></p></div></section>;
+}

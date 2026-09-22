@@ -6,11 +6,15 @@ services:
     container_name: nwm-backend
     env_file:
       - .env
-    ports:
-      - "${NWM_BACKEND_PORT:-8000}:8000"
     volumes:
       - nwm-data:/app/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   frontend:
     build:
@@ -18,7 +22,8 @@ services:
       dockerfile: frontend/Dockerfile.frontend
     container_name: nwm-frontend
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "${NWM_FRONTEND_PORT:-8080}:80"
     restart: unless-stopped

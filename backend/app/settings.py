@@ -11,3 +11,7 @@ def get_cors_origins() -> list[str]:
         for origin in get_setting("NWM_CORS_ORIGINS").split(",")
         if origin.strip()
     ]
+
+
+def get_admin_token() -> str:
+    return get_setting("NWM_ADMIN_TOKEN")
