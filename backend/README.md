@@ -20,6 +20,12 @@ The backend is organized by responsibility:
 - `app/routes/briefs.py` — detailed project brief endpoint
 - `app/notifications.py` — SMTP email notifications
 
+SQLite connections are short-lived and always closed after each request.
+They use WAL journaling and a 30-second busy timeout so concurrent reads and
+writes wait briefly instead of failing immediately with a database-locked
+error. Keep database writes inside the connection context and complete them
+before doing external work such as email notifications.
+
 ## Endpoints
 
 - `GET /api/health` — service health check
@@ -44,7 +50,10 @@ docker build -f frontend/Dockerfile.frontend -t nwm-frontend .
 docker run --rm -p 8080:80 --add-host=backend:host-gateway nwm-frontend
 ```
 
-The frontend Nginx configuration proxies `/api/*` requests to the `backend` Docker host.
+The frontend Nginx configuration proxies `/api/*` requests to the backend
+service at `http://backend:8000`. This internal service name is the
+relationship between the frontend and backend containers; browser requests
+continue to use relative `/api/*` URLs.
 
 The frontend source is organized under the project-level `frontend/` directory.
 Run frontend commands from that directory:
@@ -75,6 +84,13 @@ docker compose down
 ```
 
 The SQLite database persists in the `nwm-data` Docker volume.
+
+The root `.env` is the only runtime environment file. Copy `.env.example` to
+`.env` for a new deployment, then set the private token and SMTP values. Docker
+Compose uses `NWM_FRONTEND_PORT` for the public frontend mapping and passes the
+same root file to the backend container. `NWM_DATABASE_PATH` must remain
+`/app/data/nwm.sqlite3` in Compose so it points into the persistent `nwm-data`
+volume.
 
 For a public server, place the frontend behind an HTTPS reverse proxy and
 forward traffic to port `8080`. Keep the backend container private. Set
