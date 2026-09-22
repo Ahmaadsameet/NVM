@@ -14,19 +14,24 @@ Browser -> Nginx :80
 ```
 
 Run every Compose command from the project root, where `docker-compose.yml`
-and the private `.env` live. The frontend build uses that root as its context
-and `nginx/Dockerfile` as its Dockerfile. Node is used only to build assets;
-the running frontend container uses Nginx.
+and the private `.env` live. This is the project's only environment file;
+keep deployment settings and credentials there. The frontend build uses that
+root as its context and `nginx/Dockerfile` as its Dockerfile. Node is used only
+to build assets; the running frontend container uses Nginx.
 
 ## 1. Check the containers locally
 
 Install and start Docker Desktop with Linux containers, then run in
 PowerShell from the project root. Preserve your existing `.env`; if one does
-not exist, create it from the template and edit it before starting:
+not exist, create it and enter the settings from the table in section 3 before
+starting. For these Docker checks, set `NWM_FRONTEND_PORT` to `80` and
+`NWM_DATABASE_PATH` to `/app/data/nwm.sqlite3` in that same file. Clear exported
+`NWM_*` shell variables when relying on `.env`; shell values take precedence
+over Compose interpolation of the public port and database path.
 
 ```powershell
 if (-not (Test-Path -LiteralPath .env)) {
-    Copy-Item -LiteralPath .env.example -Destination .env
+    New-Item -Path .env -ItemType File | Out-Null
 }
 notepad .env
 docker compose config --quiet
@@ -107,16 +112,18 @@ read -r -p 'Repository URL: ' nwm_repo_url
 git clone "$nwm_repo_url" nwm-demo
 cd nwm-demo
 umask 077
-cp -n .env.example .env
+touch .env
 chmod 600 .env
 nano .env
 ```
 
-`cp -n` preserves an existing `.env`. Enter credentials only in that file.
+`touch` preserves an existing `.env`. On a new clone, enter the keys from the
+table below as `NAME=value` lines in this file, or securely transfer your
+existing private `.env` to the VM. Enter credentials only in that file.
 If a value contains `$` or `#`, single-quote the value in `.env` so Compose
-reads it literally. The template has blank credentials; the following command
-fills a blank `NWM_ADMIN_TOKEN` (or adds it if missing), preserves a configured
-token, and never prints its value:
+reads it literally. The following command fills a blank `NWM_ADMIN_TOKEN`
+(or adds it if missing), preserves a configured token, and never prints its
+value:
 
 ```bash
 python3 - <<'PY'
@@ -139,7 +146,8 @@ chmod 600 .env
 
 | Variable | Value or purpose |
 | --- | --- |
-| `NWM_DATABASE_PATH` | `/app/data/nwm.sqlite3`; Compose fixes this path inside the persistent volume. |
+| `NWM_FRONTEND_PORT` | `80`; public Nginx port used by Compose and the commands in this guide. Required and must be nonblank. |
+| `NWM_DATABASE_PATH` | `/app/data/nwm.sqlite3` for Docker; required and must be nonblank. Keep this path inside `/app/data` so the database and its sidecar files persist in the named volume. |
 | `NWM_ADMIN_TOKEN` | Generated secret for `X-Admin-Token` on `GET /api/inquiries`; keep it out of browser code. Blank disables that admin endpoint. |
 | `NWM_CORS_ORIGINS` | May remain blank: the browser and `/api/` share an origin through Nginx. |
 | `NWM_NOTIFICATION_EMAIL` | Notification recipient; configure with SMTP or leave blank to skip email. |
@@ -148,6 +156,20 @@ chmod 600 .env
 | `NWM_SMTP_USERNAME` | SMTP account username. |
 | `NWM_SMTP_PASSWORD` | SMTP password or provider app password. |
 | `NWM_SMTP_SENDER` | Authorized sender address; defaults to the SMTP username when blank. |
+
+Compose reads the public port and database path from the root `.env`; these
+settings are not duplicated as fixed values in the Dockerfiles or Compose file. Clear
+exported `NWM_*` shell variables when relying on `.env`, especially
+`NWM_FRONTEND_PORT` and `NWM_DATABASE_PATH`, because shell values take
+precedence during Compose interpolation. Do not pass a different environment
+file when using these instructions.
+
+For a native backend run outside Docker, follow the
+[backend development instructions](backend/README.md#run-locally): edit the
+same root `.env` to use `backend/nwm.sqlite3`, install the requirements, and
+start Uvicorn with `--env-file .env`. Change the path back to
+`/app/data/nwm.sqlite3` before starting Docker. This preserves the separate
+existing native database and Docker volume without moving either one.
 
 Use an authenticated SMTP service that supports STARTTLS on port 587. The
 current implementation does not use implicit TLS on port 465. Azure restricts

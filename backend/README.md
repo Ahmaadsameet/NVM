@@ -2,13 +2,26 @@
 
 ## Run locally
 
-From the project root:
+Use the same private root `.env` for native development and Docker. Before a
+native run, set `NWM_DATABASE_PATH` in that file to `backend/nwm.sqlite3` to
+keep using your existing local database. Configure the other settings using
+the [environment variable table](../DEPLOYMENT.md#3-copy-the-application-and-configure-its-private-environment).
+Clear any exported `NWM_*` shell variables when relying on `.env`, because
+existing process environment values take precedence.
+
+From the project root, with your Python environment activated:
 
 ```powershell
-C:/Python314/python.exe -m uvicorn backend.app.main:app --reload --port 8000
+python -m pip install -r requirements.txt
+python -m uvicorn backend.app.main:app --env-file .env --reload --port 8000
 ```
 
-The API stores inquiries in `backend/nwm.sqlite3`.
+Installing the requirements includes the environment-file loader through
+`uvicorn[standard]`. Uvicorn loads `.env` before importing the application, so
+SMTP, admin authentication, and CORS use the same settings as Docker.
+Before returning to Docker, change `NWM_DATABASE_PATH` in the same `.env`
+back to `/app/data/nwm.sqlite3`. Neither startup command migrates or deletes
+your existing database.
 
 The backend is organized by responsibility:
 
@@ -39,7 +52,9 @@ Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 For the complete local checks and Azure Ubuntu VM deployment commands, see
 [the deployment guide](../DEPLOYMENT.md).
 
-Build and run both services from the project root:
+For Docker, set `NWM_FRONTEND_PORT` to `80` and `NWM_DATABASE_PATH` to
+`/app/data/nwm.sqlite3` in the root `.env`. Build and run both services from
+the project root:
 
 ```powershell
 docker compose config --quiet
@@ -86,13 +101,16 @@ docker compose down
 
 The SQLite database persists in the `nwm-data` Docker volume.
 
-The root `.env` is the only runtime environment file. Provide that private
-file on the staging or production server before starting Compose; do not
-commit it. Start from the credential-free root `.env.example` on a new host.
-Docker Compose publishes Nginx on port 80 and passes `.env` only to the backend
-container. `NWM_FRONTEND_PORT` is no longer used. Compose fixes
-`NWM_DATABASE_PATH` at `/app/data/nwm.sqlite3` so the database and its sidecar
-files always reside in the persistent `nwm-data` volume.
+The root `.env` is the project's only environment file. Provide that private
+file on each host before starting Compose; do not commit it. On a new clone,
+create `.env` and fill in the settings listed in the deployment guide, or
+securely transfer your private file. Docker Compose reads `NWM_FRONTEND_PORT`
+and `NWM_DATABASE_PATH` from `.env` and passes the file's runtime settings only
+to the backend container. The configured public port is `80`. Keep the Docker
+database path at `/app/data/nwm.sqlite3` so the database and its sidecar files
+reside in the persistent `nwm-data` volume. Clear exported `NWM_*` shell
+variables when relying on this file; shell values can override Compose's
+interpolation of the public port and database path.
 
 This demo is served over HTTP on port 80. Use sample data until HTTPS is
 configured. Keep port 8000 private. Browser requests use the same origin, so
@@ -108,26 +126,17 @@ image; a new VM starts with an empty database unless you restore a backup.
 ## Email notifications
 
 New inquiries and project briefs are sent to the address configured in the
-private root `.env` file when SMTP credentials are configured. For Gmail, use
-an app password rather than your normal account password:
-
-Set the values in the root `.env` file:
-
-```text
-NWM_NOTIFICATION_EMAIL=your-recipient@example.com
-NWM_SMTP_HOST=smtp.gmail.com
-NWM_SMTP_PORT=587
-NWM_SMTP_USERNAME=your-sending-account@gmail.com
-NWM_SMTP_PASSWORD=
-NWM_SMTP_SENDER=your-sending-account@gmail.com
-```
+private root `.env` file when SMTP credentials are configured. Set
+`NWM_NOTIFICATION_EMAIL` and the `NWM_SMTP_*` values there using the
+[environment variable table](../DEPLOYMENT.md#3-copy-the-application-and-configure-its-private-environment).
+For Gmail, use an app password rather than your normal account password.
 
 Keep `.env` private and never commit it. Docker Compose loads `.env` directly
 into the backend container; the frontend container does not receive SMTP
 settings.
 
-Fill in `NWM_SMTP_PASSWORD` only in the private root `.env`. The blank value
-above is intentional. Git and Docker exclude environment files, private keys,
+Fill in `NWM_SMTP_PASSWORD` only in the private root `.env`.
+Git and Docker exclude environment files, private keys,
 and credential files, including copies in subdirectories. Vite does not load
 environment files or expose prefixed environment variables to browser code.
 Nginx rejects requests for hidden files and common credential/database files.

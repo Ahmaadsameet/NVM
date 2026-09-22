@@ -7,8 +7,8 @@ services:
     env_file:
       - .env
     environment:
-      # Always keep SQLite in the persistent volume, even with a local .env.
-      NWM_DATABASE_PATH: /app/data/nwm.sqlite3
+      # Read the path from .env; keep it under /app/data for persistence.
+      NWM_DATABASE_PATH: ${NWM_DATABASE_PATH:?Set NWM_DATABASE_PATH in the root .env}
     volumes:
       - nwm-data:/app/data
     restart: unless-stopped
@@ -28,7 +28,7 @@ services:
       backend:
         condition: service_healthy
     ports:
-      - "80:80"
+      - "${NWM_FRONTEND_PORT:?Set NWM_FRONTEND_PORT in the root .env}:80"
     restart: unless-stopped
 
 volumes:
