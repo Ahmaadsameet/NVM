@@ -1,29 +1,32 @@
 import React from "react";
 import { ArrowUpRight } from "lucide-react";
+import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
 
 export function BookingSection({ state, onSubmit, onBriefSubmit, onToggleBrief }) {
+  const { copy } = useLanguage();
+  const t = copy.booking;
   return (
     <section className="booking section-pad" id="book">
-      <SectionLabel>TELL US WHAT YOU&apos;RE BUILDING</SectionLabel>
-      <h2 className="book-title"><span>Book a</span> <em>Call.</em></h2>
-      <p>A 20 minute intro with our production team. Bring a product, a tech pack, or just an idea of quantities.</p>
+      <SectionLabel>{t.label}</SectionLabel>
+      <h2 className="book-title"><span>{t.titleBefore}</span> <em>{t.titleEmphasis}</em></h2>
+      <p>{t.description}</p>
       <form id="inquiry-form" onSubmit={onSubmit}>
-        {state.submitted ? <div className="success">Thanks — we&apos;ll be in touch shortly.</div> : <>
-          <div className="form-grid"><label>Name<input name="name" required type="text" placeholder="Your name" /></label><label>Email<input name="email" required type="email" placeholder="you@brand.com" /></label></div>
-          <label>Tell us about your project<textarea name="message" required minLength="10" placeholder="What are you building?" rows="4" /></label>
+        {state.submitted ? <div className="success">{t.thanks}</div> : <>
+          <div className="form-grid"><label>{t.name}<input name="name" required type="text" placeholder={t.namePlaceholder} /></label><label>{t.email}<input name="email" required type="email" placeholder="you@brand.com" /></label></div>
+          <label>{t.message}<textarea name="message" required minLength="10" placeholder={t.messagePlaceholder} rows="4" /></label>
           {state.submitError && <p className="form-error" role="alert">{state.submitError}</p>}
         </>}
       </form>
       <div className="booking-actions">
-        <button className="brief-toggle" type="button" onClick={onToggleBrief}>{state.briefOpen ? "CLOSE PROJECT BRIEF" : "BUILD A DETAILED PROJECT BRIEF"} <ArrowUpRight size={15} /></button>
-        {!state.submitted && <button className="solid-button inquiry-submit" type="submit" form="inquiry-form" disabled={state.submitting}>{state.submitting ? "SENDING..." : "SEND INQUIRY"} {!state.submitting && <ArrowUpRight size={16} />}</button>}
+        <button className="brief-toggle" type="button" onClick={onToggleBrief}>{state.briefOpen ? t.closeBrief : t.openBrief} <ArrowUpRight size={15} /></button>
+        {!state.submitted && <button className="solid-button inquiry-submit" type="submit" form="inquiry-form" disabled={state.submitting}>{state.submitting ? t.sending : t.sendInquiry} {!state.submitting && <ArrowUpRight size={16} />}</button>}
       </div>
-      {state.briefOpen && <ProjectBrief state={state} onSubmit={onBriefSubmit} />}
+      {state.briefOpen && <ProjectBrief state={state} onSubmit={onBriefSubmit} t={t} />}
     </section>
   );
 }
 
-function ProjectBrief({ state, onSubmit }) {
-  return <div className="brief-panel"><div className="brief-heading"><SectionLabel>PROJECT BRIEF</SectionLabel><p>Give our production team the details to prepare your first conversation.</p></div>{state.briefSubmitted ? <div className="success">Your project brief is with our team. We&apos;ll be in touch shortly.</div> : <form className="brief-form" onSubmit={onSubmit}><div className="form-grid"><label>Brand name<input name="brand_name" required type="text" placeholder="Your brand" /></label><label>Instagram handle<input name="instagram" type="text" placeholder="@yourbrand" /></label></div><div className="form-grid"><label>Contact email<input name="contact_email" required type="email" placeholder="you@brand.com" /></label><label>Total pieces<input name="total_pieces" required type="number" min="1" placeholder="e.g. 500" /></label></div><label>What kind of product are you making?<input name="product_type" required type="text" placeholder="e.g. denim jackets, knitwear, activewear" /></label><div className="form-grid"><label>Colours<input name="colours" required type="text" placeholder="e.g. black, washed blue, cream" /></label><label>Pieces per style<input name="pieces_per_style" required type="text" placeholder="e.g. 100 XS / 200 S / 200 M" /></label></div><fieldset><legend>Do you have tech packs available?</legend><label className="radio-label"><input name="tech_packs_available" required type="radio" value="yes" /> Yes, ready to share</label><label className="radio-label"><input name="tech_packs_available" required type="radio" value="no" /> Not yet</label></fieldset>{state.briefError && <p className="form-error" role="alert">{state.briefError}</p>}<button className="solid-button" type="submit" disabled={state.briefSubmitting}>{state.briefSubmitting ? "SENDING..." : "SEND PROJECT BRIEF"} {!state.briefSubmitting && <ArrowUpRight size={16} />}</button></form>}</div>;
+function ProjectBrief({ state, onSubmit, t }) {
+  return <div className="brief-panel"><div className="brief-heading"><SectionLabel>{t.briefLabel}</SectionLabel><p>{t.briefDescription}</p></div>{state.briefSubmitted ? <div className="success">{t.briefThanks}</div> : <form className="brief-form" onSubmit={onSubmit}><div className="form-grid"><label>{t.brand}<input name="brand_name" required type="text" placeholder={t.brandPlaceholder} /></label><label>{t.instagram}<input name="instagram" type="text" placeholder="@yourbrand" /></label></div><div className="form-grid"><label>{t.contactEmail}<input name="contact_email" required type="email" placeholder="you@brand.com" /></label><label>{t.total}<input name="total_pieces" required type="number" min="1" placeholder="e.g. 500" /></label></div><label>{t.product}<input name="product_type" required type="text" placeholder={t.productPlaceholder} /></label><div className="form-grid"><label>{t.colours}<input name="colours" required type="text" placeholder={t.coloursPlaceholder} /></label><label>{t.pieces}<input name="pieces_per_style" required type="text" placeholder={t.piecesPlaceholder} /></label></div><fieldset><legend>{t.techPacks}</legend><label className="radio-label"><input name="tech_packs_available" required type="radio" value="yes" /> {t.yes}</label><label className="radio-label"><input name="tech_packs_available" required type="radio" value="no" /> {t.no}</label></fieldset>{state.briefError && <p className="form-error" role="alert">{state.briefError}</p>}<button className="solid-button" type="submit" disabled={state.briefSubmitting}>{state.briefSubmitting ? t.sending : t.sendBrief} {!state.briefSubmitting && <ArrowUpRight size={16} />}</button></form>}</div>;
 }

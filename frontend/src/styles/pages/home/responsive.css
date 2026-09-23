@@ -1,7 +1,9 @@
 @media (min-width: 761px) and (max-width: 1100px) {
   .site-header { width: calc(100% - 40px); }
-  .desktop-nav { gap: 16px; }
+  .desktop-nav { gap: 7px; }
   .desktop-nav a:not(.outline-button) { font-size: 10px; }
+  .nav-pill, .outline-button { padding-right: 12px; padding-left: 12px; }
+  .language-trigger { padding-right: 8px; padding-left: 8px; }
   .section-pad { padding-top: 96px; padding-bottom: 96px; }
   .capability-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 38px 24px; }
   .quality { gap: 40px; }
@@ -17,10 +19,14 @@
   .site-header .brand-logo { height: 29px; }
   .mobile-menu { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; padding: 20px; color: #fafaf9; background: #0e0e0d; }
   .mobile-menu-top { display: flex; align-items: center; justify-content: space-between; }
-  .mobile-menu-top button { display: inline-flex; align-items: center; gap: 7px; color: inherit; background: none; border: 0; font: 10px "IBM Plex Mono", monospace; letter-spacing: .12em; }
+  .mobile-menu-top button { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 0 14px; color: #fafaf9; background: #0e0e0d; border: 1.5px solid #fafaf9; border-radius: 999px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; cursor: pointer; transition: background-color .3s ease, color .3s ease, border-color .3s ease, transform .25s ease; }
+  .mobile-menu-top button:hover, .mobile-menu-top button:focus-visible, .mobile-menu-top button:active { color: #0e0e0d; background: #fafaf9; border-color: #fafaf9; transform: translateY(-1px); outline: 0; }
   .mobile-menu nav { display: flex; flex-direction: column; margin-top: 65px; }
   .mobile-menu nav a { display: flex; align-items: center; justify-content: space-between; padding: 17px 0; border-bottom: 1px solid #2d2d2b; font-size: 28px; letter-spacing: -.04em; }
-  .mobile-cta { width: 100%; margin-top: auto; }
+  .mobile-language-picker { width: 100%; margin-top: auto; }
+  .mobile-language-picker .language-trigger { justify-content: center; width: 100%; min-height: 48px; border-radius: 999px; }
+  .mobile-language-picker .language-menu { top: auto; right: 0; bottom: calc(100% + 10px); left: 0; }
+  .mobile-cta { width: 100%; margin-top: 16px; }
   .hero { height: 100svh; min-height: 100vh; }
   .hero-content { padding-bottom: 72px; }
   .hero h1 { font-size: clamp(35px, 10.5vw, 58px); }
@@ -41,7 +47,7 @@
   .stats strong { font-size: 25px; }
   .stats div { padding: 14px 4px; }
   .stats span { font-size: 8px; letter-spacing: .08em; }
-  .process-row { grid-template-columns: 48px 1fr 20px; gap: 12px; }
+  .process-row { grid-template-columns: 48px 1fr; gap: 12px; }
   .process-row h3 { font-size: 20px; }
   .quality-panel { margin-top: 45px; }
   .comparison { gap: 15px; }

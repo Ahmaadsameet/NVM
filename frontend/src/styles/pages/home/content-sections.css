@@ -1,4 +1,5 @@
 .intro { max-width: 1020px; margin: auto; text-align: center; }
+.intro-logo { display: block; width: clamp(210px, 28vw, 360px); height: auto; margin: auto; }
 .monogram { width: 40px; height: 40px; margin: auto; font-size: 15px; }
 .statement { max-width: 800px; margin: 30px auto 0; font-size: clamp(24px, 3.3vw, 46px); font-weight: 500; line-height: 1.14; letter-spacing: -.035em; }
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 80px; border-top: 1px solid #c9c9c6; }
@@ -24,11 +25,10 @@
 .section-topline { display: flex; justify-content: space-between; padding-top: 17px; border-top: 1px solid #0e0e0d; }
 .process > h2 { max-width: 620px; }
 .process-list { margin-top: 58px; }
-.process-row { display: grid; grid-template-columns: 78px minmax(0, 1fr) 30px; align-items: center; gap: 30px; padding: 23px 0; border-top: 1px solid var(--soft-line); }
+.process-row { display: grid; grid-template-columns: 78px minmax(0, 1fr); align-items: center; gap: 30px; padding: 23px 0; border-top: 1px solid var(--soft-line); }
 .step-number { color: #b1b1ad; font: 25px "IBM Plex Mono", monospace; }
 .process-row h3 { font-size: 23px; font-weight: 600; letter-spacing: -.03em; }
 .process-row p { max-width: 540px; margin-top: 7px; color: var(--muted); font-size: 13px; line-height: 1.6; }
-.row-arrow { color: #aaa; font-size: 21px; }
 
 .quality { display: grid; grid-template-columns: 1fr 1fr; gap: 65px; background: #efefeb; border-block: 1px solid var(--soft-line); }
 .quality > div > p { max-width: 500px; margin-top: 23px; color: #4a4a48; font-size: 14px; line-height: 1.65; }
@@ -62,5 +62,5 @@
 .closing { position: relative; display: grid; place-items: center; height: 78svh; min-height: 540px; overflow: hidden; color: white; text-align: center; }
 .closing::after { position: absolute; inset: 0; content: ""; background: rgba(0,0,0,.53); }
 .closing > div { position: relative; z-index: 1; }
-.monogram.light { margin: auto; }
+.closing-logo { display: block; width: clamp(220px, 30vw, 420px); height: auto; margin: auto; filter: invert(1); }
 .closing p { max-width: 800px; margin-top: 30px; font-size: clamp(38px, 6vw, 80px); font-weight: 600; line-height: 1; letter-spacing: -.055em; }

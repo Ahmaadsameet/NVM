@@ -2,6 +2,7 @@ import React from "react";
 import { BookingSection } from "../components/BookingSection";
 import { CapabilitiesSection, ClosingSection, DifferenceSection, IntroSection, ProcessSection, QualitySection, Ticker, WorkSection } from "../components/ContentSections";
 import { Header, Hero, MobileMenu, ScrollEffects } from "../components/SiteChrome";
+import { useLanguage } from "../i18n";
 
 export default class HomePage extends React.Component {
   state = { menuOpen: false, submitted: false, submitting: false, submitError: "", briefOpen: false, briefSubmitted: false, briefSubmitting: false, briefError: "" };
@@ -36,6 +37,12 @@ export default class HomePage extends React.Component {
 
   render() {
     const { menuOpen } = this.state;
-    return <div className="app"><ScrollEffects /><Header menuOpen={menuOpen} onToggle={() => this.setState({ menuOpen: !menuOpen })} /><MobileMenu open={menuOpen} onClose={() => this.setState({ menuOpen: false })} /><main><Hero /><Ticker /><IntroSection /><CapabilitiesSection /><ProcessSection /><QualitySection /><DifferenceSection /><WorkSection /><ClosingSection /><BookingSection state={this.state} onSubmit={this.handleSubmit} onBriefSubmit={this.handleBriefSubmit} onToggleBrief={() => this.setState({ briefOpen: !this.state.briefOpen })} /></main><footer><div className="footer-main"><div><img className="footer-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" /><p>A German production company<br />for apparel brands.</p></div><div><span className="eyebrow">PAGES</span><a href="#make">Capabilities</a><a href="#process">Process</a><a href="#quality">Quality</a><a href="#book">Contact / Book a Call</a></div><div><span className="eyebrow">CONTACT</span><a href="mailto:hello@northweavemills.com">hello@northweavemills.com</a><a href="#book">Book a Call</a></div></div><div className="footer-bottom"><span>© 2026 NORTH WEAVE MILLS</span><span>GERMANY · NWM</span></div></footer></div>;
+    return <div className="app"><ScrollEffects /><Header menuOpen={menuOpen} onToggle={() => this.setState({ menuOpen: !menuOpen })} /><MobileMenu open={menuOpen} onClose={() => this.setState({ menuOpen: false })} /><main><Hero /><Ticker /><IntroSection /><CapabilitiesSection /><ProcessSection /><QualitySection /><DifferenceSection /><WorkSection /><ClosingSection /><BookingSection state={this.state} onSubmit={this.handleSubmit} onBriefSubmit={this.handleBriefSubmit} onToggleBrief={() => this.setState({ briefOpen: !this.state.briefOpen })} /></main><LocalizedFooter /></div>;
   }
+}
+
+function LocalizedFooter() {
+  const { copy } = useLanguage();
+  const t = copy.footer;
+  return <footer><div className="footer-main"><div><img className="footer-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" /><p>{t.description1}<br />{t.description2}</p></div><div><span className="eyebrow">{t.pages}</span><a href="#make">{t.capabilities}</a><a href="#process">{t.process}</a><a href="#quality">{t.quality}</a><a href="#book">{t.contactBook}</a></div><div><span className="eyebrow">{t.contact}</span><a href="mailto:Info@northweavemills.com">Info@northweavemills.com</a><a href="#book">{t.book}</a></div></div><div className="footer-bottom"><span>© 2026 NORTH WEAVE MILLS</span><span>{t.country}</span></div></footer>;
 }

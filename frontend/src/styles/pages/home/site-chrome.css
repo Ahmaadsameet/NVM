@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(920px, calc(100% - 32px));
+  width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
   padding: 11px 17px 11px 21px;
   color: #fafaf9;
@@ -25,7 +25,16 @@ html.has-scrolled .site-header {
 .brand { display: flex; align-items: center; white-space: nowrap; }
 .brand-logo { display: block; width: auto; height: 32px; object-fit: contain; }
 .brand-mark, .monogram { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid currentColor; border-radius: 50%; font: 500 13px "IBM Plex Mono", monospace; letter-spacing: 0; }
-.desktop-nav { display: flex; align-items: center; gap: clamp(10px, 1.6vw, 18px); font-size: 11px; font-weight: 500; letter-spacing: .13em; }
+.desktop-nav { display: flex; align-items: center; gap: clamp(7px, 1vw, 14px); font-size: 11px; font-weight: 500; letter-spacing: .1em; }
 .desktop-nav a:not(.outline-button):not(.nav-pill) { color: inherit; }
+.language-picker { position: relative; display: inline-flex; font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+.language-trigger { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 0 12px; color: #fafaf9; background: #0e0e0d; border: 1.5px solid #fafaf9; border-radius: 999px; font: inherit; letter-spacing: inherit; cursor: pointer; transition: background-color .3s ease, color .3s ease, border-color .3s ease, transform .25s ease; }
+.language-trigger:hover, .language-trigger:focus-visible, .language-picker:focus-within .language-trigger { color: #0e0e0d; background: #fafaf9; border-color: #fafaf9; transform: translateY(-1px); }
+.language-trigger svg:last-child { transition: transform .25s ease; }
+.language-trigger svg:last-child.is-open { transform: rotate(180deg); }
+.language-menu { position: absolute; top: calc(100% + 10px); right: 0; z-index: 60; display: grid; gap: 4px; min-width: 154px; padding: 8px; color: #fafaf9; background: rgba(14,14,13,.98); border: 1px solid rgba(255,255,255,.22); border-radius: 16px; box-shadow: 0 18px 44px rgba(0,0,0,.38); backdrop-filter: blur(14px); }
+.language-menu button { width: 100%; padding: 11px 13px; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 10px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .1em; text-align: center; cursor: pointer; transition: background-color .25s ease, color .25s ease, border-color .25s ease, transform .2s ease; }
+.language-menu button:hover, .language-menu button:focus-visible, .language-menu button.is-active { color: #0e0e0d; background: #fafaf9; border-color: #fafaf9; transform: translateY(-1px); outline: 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .menu-button { display: none; min-width: 44px; min-height: 44px; color: inherit; background: transparent; border: 0; cursor: pointer; }
 .mobile-menu { display: none; }

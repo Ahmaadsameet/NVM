@@ -1,5 +1,6 @@
 import React from "react";
-import { ArrowDownRight, ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ChevronDown, Globe2, Menu, X } from "lucide-react";
+import { languageOptions, useLanguage } from "../i18n";
 
 export function SectionLabel({ children }) {
   return <span className="eyebrow">{children}</span>;
@@ -34,11 +35,43 @@ export class ScrollEffects extends React.Component {
 }
 
 const NAV_LINKS = [
-  { id: "make", label: "CAPABILITIES" },
-  { id: "process", label: "PROCESS" },
-  { id: "quality", label: "QUALITY" },
-  { id: "work", label: "WORK" },
+  { id: "make", label: "capabilities" },
+  { id: "process", label: "process" },
+  { id: "quality", label: "quality" },
+  { id: "work", label: "work" },
 ];
+
+function LanguagePicker({ mobile = false }) {
+  const { language, setLanguage } = useLanguage();
+  const [open, setOpen] = React.useState(false);
+  const pickerRef = React.useRef(null);
+  const current = languageOptions.find(({ code }) => code === language) || languageOptions[0];
+
+  React.useEffect(() => {
+    const closePicker = (event) => {
+      if (event.type === "keydown" && event.key !== "Escape") return;
+      if (event.type === "pointerdown" && pickerRef.current?.contains(event.target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("pointerdown", closePicker);
+    document.addEventListener("keydown", closePicker);
+    return () => {
+      document.removeEventListener("pointerdown", closePicker);
+      document.removeEventListener("keydown", closePicker);
+    };
+  }, []);
+
+  return <div className={`language-picker ${mobile ? "mobile-language-picker" : ""}`} ref={pickerRef}>
+    <button className="language-trigger" type="button" aria-label="Choose language" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(value => !value)}>
+      <Globe2 size={15} aria-hidden="true" />
+      <span>{current.short}</span>
+      <ChevronDown className={open ? "is-open" : ""} size={13} aria-hidden="true" />
+    </button>
+    {open && <div className="language-menu" role="listbox" aria-label="Language">
+      {languageOptions.map(({ code, label }) => <button className={language === code ? "is-active" : ""} type="button" role="option" aria-selected={language === code} key={code} onClick={() => { setLanguage(code); setOpen(false); }}>{label}</button>)}
+    </div>}
+  </div>;
+}
 
 export function useActiveSection(ids) {
   const [active, setActive] = React.useState(ids[0]);
@@ -61,6 +94,7 @@ export function useActiveSection(ids) {
 }
 
 export function Header({ menuOpen, onToggle }) {
+  const { copy } = useLanguage();
   const activeId = useActiveSection(React.useMemo(() => NAV_LINKS.map((link) => link.id), []));
 
   return (
@@ -71,10 +105,11 @@ export function Header({ menuOpen, onToggle }) {
       <nav className={`desktop-nav ${menuOpen ? "hidden" : ""}`}>
         {NAV_LINKS.map(({ id, label }) => (
           <a key={id} className={`nav-pill ${activeId === id ? "is-active" : ""}`} href={`#${id}`}>
-            {label}
+            {copy.nav[label]}
           </a>
         ))}
-        <a className="outline-button" href="#book">BOOK A CALL</a>
+        <LanguagePicker />
+        <a className="outline-button" href="#book">{copy.nav.book}</a>
       </nav>
       <button className="menu-button" onClick={onToggle} aria-label={menuOpen ? "Close menu" : "Open menu"}>
         {menuOpen ? <X size={22} /> : <Menu size={24} />}
@@ -84,38 +119,41 @@ export function Header({ menuOpen, onToggle }) {
 }
 
 export function MobileMenu({ open, onClose }) {
+  const { copy } = useLanguage();
   if (!open) return null;
   return (
     <div className="mobile-menu">
       <div className="mobile-menu-top">
         <span className="brand"><img className="brand-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" /></span>
-        <button onClick={onClose}>CLOSE <X size={16} /></button>
+        <button onClick={onClose}>{copy.nav.close}</button>
       </div>
       <nav>
-        {["make", "process", "quality", "work"].map((id, i) => (
-          <a key={id} href={`#${id}`} onClick={onClose}>{["Capabilities", "Process", "Quality", "Selected Work"][i]} <ArrowUpRight size={22} /></a>
+        {NAV_LINKS.map(({ id, label }) => (
+          <a key={id} href={`#${id}`} onClick={onClose}>{copy.nav[label]} <ArrowUpRight size={22} /></a>
         ))}
       </nav>
-      <a className="solid-button mobile-cta" href="#book" onClick={onClose}>BOOK A CALL</a>
+      <LanguagePicker mobile />
+      <a className="solid-button mobile-cta" href="#book" onClick={onClose}>{copy.nav.book}</a>
     </div>
   );
 }
 
 export function Hero() {
+  const { copy } = useLanguage();
   return (
     <section className="hero" id="top">
       <video className="hero-video" src="/assets/dashboard-video.mp4" autoPlay muted loop playsInline aria-label="Apparel production footage" />
       <div className="hero-overlay" />
       <div className="hero-content">
-        <SectionLabel>APPAREL PRODUCTION COMPANY · GERMANY</SectionLabel>
-        <h1>Built for Brands.<br /><em>Structured</em> for Production.</h1>
-        <p>A German production company for apparel brands that don&apos;t compromise.</p>
+        <SectionLabel>{copy.hero.label}</SectionLabel>
+        <h1>{copy.hero.line1}<br /><em>{copy.hero.emphasis}</em> {copy.hero.line2}</h1>
+        <p>{copy.hero.description}</p>
         <div className="hero-actions">
-          <a className="solid-button" href="#book">BOOK A CALL <ArrowUpRight size={16} /></a>
-          <a className="scroll-link" href="#stats">SCROLL <ArrowDownRight size={16} /></a>
+          <a className="solid-button" href="#book">{copy.nav.book} <ArrowUpRight size={16} /></a>
+          <a className="scroll-link" href="#stats">{copy.hero.scroll} <ArrowDownRight size={16} /></a>
         </div>
       </div>
-      <span className="hero-note">NWM FILM / 001</span>
+      <span className="hero-note">{copy.hero.film}</span>
     </section>
   );
 }
