@@ -107,9 +107,9 @@ export function Hero() {
       <video className="hero-video" src="/assets/dashboard-video.mp4" autoPlay muted loop playsInline aria-label="Apparel production footage" />
       <div className="hero-overlay" />
       <div className="hero-content">
-        <SectionLabel>APPAREL PRODUCTION PARTNER · GERMANY</SectionLabel>
+        <SectionLabel>APPAREL PRODUCTION COMPANY · GERMANY</SectionLabel>
         <h1>Built for Brands.<br /><em>Structured</em> for Production.</h1>
-        <p>A German production partner for apparel brands that don&apos;t compromise.</p>
+        <p>A German production company for apparel brands that don&apos;t compromise.</p>
         <div className="hero-actions">
           <a className="solid-button" href="#book">BOOK A CALL <ArrowUpRight size={16} /></a>
           <a className="scroll-link" href="#stats">SCROLL <ArrowDownRight size={16} /></a>
