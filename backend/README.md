@@ -125,8 +125,12 @@ image; a new VM starts with an empty database unless you restore a backup.
 
 ## Email notifications
 
-New inquiries and project briefs are sent to the address configured in the
-private root `.env` file when SMTP credentials are configured. Set
+New inquiries and project briefs can be sent to the address configured in the
+private root `.env` file when SMTP credentials are configured and notifications
+are explicitly enabled. Set
+`NWM_NOTIFICATIONS_ENABLED=true` only when notifications are ready to be
+activated; the default is `false`, so database submissions work without SMTP.
+Set
 `NWM_NOTIFICATION_EMAIL` and the `NWM_SMTP_*` values there using the
 [environment variable table](../DEPLOYMENT.md#3-copy-the-application-and-configure-its-private-environment).
 For Gmail, use an app password rather than your normal account password.
@@ -152,5 +156,6 @@ docker compose up --build -d
 ```
 
 The recipient is controlled by `NWM_NOTIFICATION_EMAIL` in the private `.env`
-file. If SMTP credentials are not configured, submissions are still saved to
-SQLite and the backend logs that email delivery was skipped.
+file. If notifications are disabled or SMTP credentials are not configured,
+submissions are still saved to SQLite and the backend logs that email delivery
+was skipped.

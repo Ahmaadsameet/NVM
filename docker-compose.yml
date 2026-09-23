@@ -9,6 +9,8 @@ services:
     environment:
       # Read the path from .env; keep it under /app/data for persistence.
       NWM_DATABASE_PATH: ${NWM_DATABASE_PATH:?Set NWM_DATABASE_PATH in the root .env}
+      # Keep SMTP dormant until notifications are intentionally enabled.
+      NWM_NOTIFICATIONS_ENABLED: ${NWM_NOTIFICATIONS_ENABLED:-false}
     volumes:
       - nwm-data:/app/data
     restart: unless-stopped

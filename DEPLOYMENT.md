@@ -10,7 +10,7 @@ Browser -> Nginx :80
              |-- page/assets -> /usr/share/nginx/html (built React)
              `-- /api/* -> backend:8000 (FastAPI + Uvicorn)
                               |-- commit submission -> SQLite named volume
-                              `-- after commit -> SMTP STARTTLS :587 notification
+                              `-- after commit -> optional SMTP STARTTLS :587 notification
 ```
 
 Run every Compose command from the project root, where `docker-compose.yml`
@@ -150,6 +150,7 @@ chmod 600 .env
 | `NWM_DATABASE_PATH` | `/app/data/nwm.sqlite3` for Docker; required and must be nonblank. Keep this path inside `/app/data` so the database and its sidecar files persist in the named volume. |
 | `NWM_ADMIN_TOKEN` | Generated secret for `X-Admin-Token` on `GET /api/inquiries`; keep it out of browser code. Blank disables that admin endpoint. |
 | `NWM_CORS_ORIGINS` | May remain blank: the browser and `/api/` share an origin through Nginx. |
+| `NWM_NOTIFICATIONS_ENABLED` | `false` by default. Set to `true` only when SMTP notifications are ready to be activated and tested. |
 | `NWM_NOTIFICATION_EMAIL` | Notification recipient; configure with SMTP or leave blank to skip email. |
 | `NWM_SMTP_HOST` | Your authenticated SMTP provider's host. |
 | `NWM_SMTP_PORT` | `587`; the current backend connects with SMTP and STARTTLS. |
@@ -171,7 +172,7 @@ start Uvicorn with `--env-file .env`. Change the path back to
 `/app/data/nwm.sqlite3` before starting Docker. This preserves the separate
 existing native database and Docker volume without moving either one.
 
-Use an authenticated SMTP service that supports STARTTLS on port 587. The
+Notifications remain disabled unless `NWM_NOTIFICATIONS_ENABLED=true`. Use an authenticated SMTP service that supports STARTTLS on port 587. The
 current implementation does not use implicit TLS on port 465. Azure restricts
 outbound port 25 for many subscriptions; authenticated SMTP on 587 is the
 [documented Azure approach](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-network/troubleshoot-outbound-smtp-connectivity).
@@ -203,7 +204,8 @@ sudo docker compose logs --tail=100 backend frontend
 Expect the same health, `200`, and `404` results as the local checks. Open
 `http://YOUR_VM_PUBLIC_IP/` from another computer, then open
 `http://YOUR_VM_PUBLIC_IP/api/health`. Submit a sample inquiry from the UI
-and confirm it saves; confirm email arrives if SMTP is configured. SMTP
+and confirm it saves; confirm email arrives only if SMTP is configured and
+`NWM_NOTIFICATIONS_ENABLED=true`. SMTP
 failure or omitted credentials do not prevent the saved SQLite submission.
 
 Both containers restart automatically with Docker after a VM reboot unless
