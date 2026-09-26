@@ -155,7 +155,7 @@ export function MobileMenu({ open, onClose }) {
       </div>
       <nav>
         {NAV_LINKS.map(({ id, label }) => (
-          <a key={id} href={`#${id}`} onClick={onClose}>{copy.nav[label]} <ArrowUpRight size={22} /></a>
+          <a key={id} href={`#${id}`} onClick={onClose}>{copy.nav[label]}</a>
         ))}
       </nav>
       <LanguagePicker mobile />

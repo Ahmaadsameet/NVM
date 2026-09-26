@@ -26,7 +26,8 @@
   .mobile-menu-top button { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 0 14px; color: #fafaf9; background: #0e0e0d; border: 1.5px solid #fafaf9; border-radius: 999px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; cursor: pointer; transition: background-color .3s ease, color .3s ease, border-color .3s ease, transform .25s ease; }
   .mobile-menu-top button:hover, .mobile-menu-top button:focus-visible, .mobile-menu-top button:active { color: #0e0e0d; background: #fafaf9; border-color: #fafaf9; transform: translateY(-1px); outline: 0; }
   .mobile-menu nav { display: flex; flex-direction: column; margin-top: 65px; }
-  .mobile-menu nav a { display: flex; align-items: center; justify-content: space-between; padding: 17px 0; border-bottom: 1px solid #2d2d2b; font-size: 28px; letter-spacing: -.04em; }
+  .mobile-menu nav a { position: relative; display: flex; align-items: center; justify-content: center; min-height: 64px; padding: 16px 42px; color: #c2c2be; border-bottom: 1px solid #2d2d2b; font-size: 22px; font-weight: 400; line-height: 1.25; letter-spacing: 0; text-align: center; transition: color .25s ease, transform .25s ease; }
+  .mobile-menu nav a:hover, .mobile-menu nav a:focus-visible { color: #fafaf8; transform: translateY(-2px); outline: 0; }
   .mobile-language-picker { width: 100%; margin-top: auto; }
   .mobile-language-picker .language-trigger { justify-content: center; width: 100%; min-height: 48px; border-radius: 999px; }
   .mobile-language-picker .language-menu { top: auto; right: 0; bottom: calc(100% + 10px); left: 0; }

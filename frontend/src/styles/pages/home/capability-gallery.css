@@ -65,8 +65,9 @@
   .capability-dialog-header { padding: 16px; }
   .capability-dialog-header h3 { font-size: 24px; }
   .capability-gallery-browser { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 14px 16px 18px; }
-  .capability-product-tab { padding: 4px; font-size: 8px; }
-  .capability-product-tab-label { padding: 0 2px 2px; }
+  .capability-product-tab { gap: 5px; padding: 4px; font-size: 8px; text-align: center; }
+  .capability-product-tab-label { width: 100%; padding: 1px 0 2px; color: #c0c0bb; font-size: 8px; font-weight: 500; line-height: 1.35; letter-spacing: .06em; text-align: center; }
+  .capability-product-tab.is-active .capability-product-tab-label { color: #fafaf8; }
   .capability-product-count { right: 8px; bottom: 8px; padding: 7px 8px; }
 }
 

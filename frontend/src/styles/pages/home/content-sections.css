@@ -64,6 +64,5 @@
 .work-grid .logo-card-3 img, .work-grid .logo-card-3 video { border-radius: 0; }
 .work-grid .logo-card-4 img, .work-grid .logo-card-4 video { border-radius: 50% 0 0 0; }
 .work-grid .logo-card-5 img, .work-grid .logo-card-5 video { border-radius: 0 0 50% 0; }
-.work-grid figcaption { min-height: 24px; margin-top: 12px; color: #b0b0ac; font: 10px "IBM Plex Mono", monospace; letter-spacing: .13em; }
 .work-grid::-webkit-scrollbar { display: none; }
 

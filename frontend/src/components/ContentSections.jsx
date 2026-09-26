@@ -145,7 +145,7 @@ export function WorkSection() {
     "/assets/card5.mp4"
   ];
 
-  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} autoPlay muted loop playsInline preload="metadata" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} />}<figcaption>{work.captions[index]}</figcaption></figure>)}</div></section>;
+  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} autoPlay muted loop playsInline preload="metadata" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} />}</figure>)}</div></section>;
 }
 
 export function ClosingSection() {
