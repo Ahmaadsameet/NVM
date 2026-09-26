@@ -42,11 +42,10 @@ export const capabilityGalleries = {
 };
 
 // Images used by the selected work gallery.
-export const selectedWorkImages = {
-  productionFloor: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=85",
-  denimWash: capabilityImages.denim,
-  fabricFinishing: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=900&q=85"
-};
-
-// Image used by the closing statement.
-export const closingImage = capabilityImages.fashion;
+export const selectedWorkImages = [
+  "/assets/capabilities/denim/zip-jacket.png",
+  "/assets/capabilities/denim/olive-overshirt.png",
+  "/assets/capabilities/leather/olive-jacket.png",
+  "/assets/capabilities/biker/touring-jacket.jpg",
+  "/assets/capabilities/fashion/green-buffalo-plaid-hooded-shirt.png"
+];

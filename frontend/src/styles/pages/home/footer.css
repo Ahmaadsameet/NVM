@@ -2,9 +2,9 @@ footer { padding: 80px clamp(20px, 5vw, 64px) 35px; color: #fafaf8; background: 
 .footer-main { display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: 40px; max-width: 1560px; margin: auto; }
 .footer-main > div { min-width: 0; }
 .footer-logo { display: block; width: auto; height: 64px; object-fit: contain; }
-footer p { margin-top: 14px; color: #8d8d8a; font-size: 13px; line-height: 1.5; }
-footer .eyebrow { margin-bottom: 13px; color: #73736f; }
+footer p { margin-top: 14px; color: #a7a7a2; font-size: 13px; line-height: 1.5; }
+footer .eyebrow { margin-bottom: 13px; color: #969690; }
 .footer-main > div:not(:first-child) { display: flex; flex-direction: column; gap: 11px; font-size: 14px; }
 footer a { overflow-wrap: anywhere; }
-footer a:hover { color: #aaa; }
-.footer-bottom { display: flex; justify-content: space-between; max-width: 1560px; margin: 64px auto 0; padding-top: 20px; color: #73736f; border-top: 1px solid #292927; font: 10px "IBM Plex Mono", monospace; letter-spacing: .1em; }
+footer a:hover { color: #c0c0bb; }
+.footer-bottom { display: flex; justify-content: space-between; max-width: 1560px; margin: 64px auto 0; padding-top: 20px; color: #969690; border-top: 1px solid #292927; font: 10px "IBM Plex Mono", monospace; letter-spacing: .1em; }

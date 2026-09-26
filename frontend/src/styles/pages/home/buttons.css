@@ -35,27 +35,20 @@
   transition: background-color .3s ease, color .3s ease, transform .25s ease;
 }
 
-.site-header .outline-button { transition: background-color .3s ease, color .3s ease, transform .25s ease; }
-html.has-scrolled .site-header .outline-button:hover { color: #0e0e0d; background: #fafaf9; }
+.site-header .outline-button { color: #20201e; background: #fafaf9; border-color: #fafaf9; transition: background-color .3s ease, color .3s ease, transform .25s ease; }
 
 .nav-pill {
-  position: relative;
-  isolation: isolate;
   display: inline-flex;
-  padding: 13px 24px;
-  overflow: hidden;
+  padding: 10px 0;
   color: #fafaf9;
-  background: #0e0e0d;
-  border: 1.5px solid #fafaf9;
-  border-radius: 999px;
+  background: transparent;
+  border: 0;
   font-weight: 700;
-  transition: color .3s ease, border-color .3s ease, transform .25s ease;
+  transition: color .3s ease, transform .25s ease, text-shadow .25s ease;
 }
 
-.nav-pill::before { position: absolute; inset: 0; z-index: -1; content: ""; opacity: 0; transform: scale(0); background: #fafaf9; border-radius: inherit; transition: transform .35s cubic-bezier(.2, .7, .2, 1), opacity .35s ease; }
-.nav-pill:hover, .nav-pill:focus-visible { color: #0e0e0d; }
-.nav-pill:hover { transform: translateY(-1px); }
-.nav-pill:hover::before, .nav-pill:focus-visible::before { opacity: 1; transform: scale(1); }
+.nav-pill:hover, .nav-pill:focus-visible { color: #9bd7d9; text-shadow: 0 5px 12px rgba(155, 215, 217, .35); transform: translateY(-3px); }
+.nav-pill:focus-visible { outline: 0; }
 
 .scroll-link, .text-link { display: inline-flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid currentColor; font-size: 11px; font-weight: 600; letter-spacing: .14em; }
 

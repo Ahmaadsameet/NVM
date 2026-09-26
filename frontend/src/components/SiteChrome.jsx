@@ -8,6 +8,7 @@ export function SectionLabel({ children }) {
 
 export class ScrollEffects extends React.Component {
   componentDidMount() {
+    this.headerSections = Array.from(document.querySelectorAll("main > section, main > .ticker"));
     this.handleScroll();
     window.addEventListener("scroll", this.handleScroll, { passive: true });
     this.observer = new IntersectionObserver(
@@ -26,7 +27,30 @@ export class ScrollEffects extends React.Component {
   }
 
   handleScroll = () => {
-    document.documentElement.classList.toggle("has-scrolled", window.scrollY > 24);
+    const root = document.documentElement;
+    root.classList.toggle("has-scrolled", window.scrollY > 24);
+
+    const header = document.querySelector(".site-header");
+    if (!header) return;
+    const headerBounds = header.getBoundingClientRect();
+    const headerLine = headerBounds.top + headerBounds.height / 2;
+    const section = this.headerSections.find((item) => {
+      const bounds = item.getBoundingClientRect();
+      return bounds.top <= headerLine && bounds.bottom > headerLine;
+    });
+    const lightBackdrop = section && !section.matches(".hero, .difference, .closing, .booking");
+    root.classList.toggle("header-over-light", Boolean(lightBackdrop));
+
+    const mobileCta = document.querySelector(".mobile-sticky-cta");
+    if (!mobileCta) return;
+    const ctaBounds = mobileCta.getBoundingClientRect();
+    const ctaLine = ctaBounds.top + ctaBounds.height / 2;
+    const ctaSection = this.headerSections.find((item) => {
+      const bounds = item.getBoundingClientRect();
+      return bounds.top <= ctaLine && bounds.bottom > ctaLine;
+    });
+    const lightCtaBackdrop = ctaSection && !ctaSection.matches(".hero, .difference, .closing, .booking");
+    root.classList.toggle("mobile-cta-over-light", Boolean(lightCtaBackdrop));
   };
 
   render() {
@@ -98,6 +122,7 @@ export function Header({ menuOpen, onToggle }) {
   const activeId = useActiveSection(React.useMemo(() => NAV_LINKS.map((link) => link.id), []));
 
   return (
+    <>
     <header className="site-header">
       <a className="brand" href="#top" aria-label="North Weave Mills home">
         <img className="brand-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" />
@@ -108,13 +133,14 @@ export function Header({ menuOpen, onToggle }) {
             {copy.nav[label]}
           </a>
         ))}
-        <LanguagePicker />
         <a className="outline-button" href="#book">{copy.nav.book}</a>
       </nav>
       <button className="menu-button" onClick={onToggle} aria-label={menuOpen ? "Close menu" : "Open menu"}>
         {menuOpen ? <X size={22} /> : <Menu size={24} />}
       </button>
     </header>
+    <a className="mobile-sticky-cta" href="#book">{copy.nav.book}</a>
+    </>
   );
 }
 

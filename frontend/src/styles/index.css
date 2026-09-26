@@ -13,7 +13,7 @@
   --charcoal: #181817;
   --paper: #fafaf8;
   --soft-line: #deded9;
-  --muted: #74746f;
+  --muted: #94948f;
   --soft-shadow: 0 18px 50px rgba(22, 22, 20, .08);
 }
 
@@ -27,9 +27,9 @@ h1, h2, h3, p { margin: 0; }
 
 .app { background: #f7f7f5; }
 .section-pad { padding: clamp(78px, 9vw, 125px) clamp(20px, 5vw, 64px); }
-.eyebrow { display: block; color: #777774; font: 10px "IBM Plex Mono", monospace; letter-spacing: .17em; }
+.eyebrow { display: block; color: #969691; font: 10px "IBM Plex Mono", monospace; letter-spacing: .17em; }
 h2 { margin-top: 22px; font-size: clamp(32px, 4vw, 54px); font-weight: 600; line-height: 1; letter-spacing: -.05em; }
-h1 em, h2 em, .statement em, .closing em { color: #a5a5a1; font-style: normal; }
+h1 em, h2 em, .statement em, .closing em { color: #bdbdb9; font-style: normal; }
 
 .scroll-reveal {
   position: relative;

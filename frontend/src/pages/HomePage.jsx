@@ -5,7 +5,7 @@ import { Header, Hero, MobileMenu, ScrollEffects } from "../components/SiteChrom
 import { useLanguage } from "../i18n";
 
 export default class HomePage extends React.Component {
-  state = { menuOpen: false, submitted: false, submitting: false, submitError: "", briefOpen: false, briefSubmitted: false, briefSubmitting: false, briefError: "" };
+  state = { menuOpen: false, submitted: false, submitting: false, submitError: "", briefSubmitted: false, briefSubmitting: false, briefError: "" };
 
   handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,7 +37,7 @@ export default class HomePage extends React.Component {
 
   render() {
     const { menuOpen } = this.state;
-    return <div className="app"><ScrollEffects /><Header menuOpen={menuOpen} onToggle={() => this.setState({ menuOpen: !menuOpen })} /><MobileMenu open={menuOpen} onClose={() => this.setState({ menuOpen: false })} /><main><Hero /><Ticker /><IntroSection /><CapabilitiesSection /><ProcessSection /><QualitySection /><DifferenceSection /><WorkSection /><ClosingSection /><BookingSection state={this.state} onSubmit={this.handleSubmit} onBriefSubmit={this.handleBriefSubmit} onToggleBrief={() => this.setState({ briefOpen: !this.state.briefOpen })} /></main><LocalizedFooter /></div>;
+    return <div className="app"><ScrollEffects /><Header menuOpen={menuOpen} onToggle={() => this.setState({ menuOpen: !menuOpen })} /><MobileMenu open={menuOpen} onClose={() => this.setState({ menuOpen: false })} /><main><Hero /><Ticker /><IntroSection /><CapabilitiesSection /><ProcessSection /><QualitySection /><DifferenceSection /><WorkSection /><ClosingSection /><BookingSection state={this.state} onSubmit={this.handleSubmit} onBriefSubmit={this.handleBriefSubmit} /></main><LocalizedFooter /></div>;
   }
 }
 

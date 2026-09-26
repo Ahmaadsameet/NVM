@@ -1,6 +1,7 @@
 import React from "react";
-import { ArrowUpRight, Check } from "lucide-react";
-import { capabilityGalleries, capabilityImages, closingImage, selectedWorkImages } from "../data/images";
+import { createPortal } from "react-dom";
+import { ArrowUpRight, Check, X } from "lucide-react";
+import { capabilityGalleries, capabilityImages, selectedWorkImages } from "../data/images";
 import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
 
@@ -41,19 +42,77 @@ export function IntroSection() {
 export function CapabilitiesSection() {
   const { copy } = useLanguage();
   const { capabilities } = copy;
+  const [activeGallery, setActiveGallery] = React.useState(null);
+  const [activePhotoIndex, setActivePhotoIndex] = React.useState(0);
+  const dialogRef = React.useRef(null);
+  const closeButtonRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!activeGallery) return undefined;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setActiveGallery(null);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = dialogRef.current?.querySelectorAll("button, [href], input, textarea, select, [tabindex]:not([tabindex='-1'])");
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previousFocus?.focus?.();
+    };
+  }, [activeGallery]);
+
+  const openGallery = (name, imageKey) => {
+    setActivePhotoIndex(0);
+    setActiveGallery({ name, imageKey });
+  };
   return <section className="capabilities section-pad" id="make">
     <div className="section-heading"><div><SectionLabel>{capabilities.label}</SectionLabel><h2>{capabilities.titleBefore}<br /><em>{capabilities.titleEmphasis}</em> {capabilities.titleAfter}</h2></div><p>{capabilities.description}</p></div>
-    <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className="capability-card" tabIndex="0" key={imageKey}>
+    <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className="capability-card" tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} onClick={() => openGallery(name, imageKey)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openGallery(name, imageKey); } }} key={imageKey}>
       <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} /></div>
-      <div className="capability-hover-preview" aria-hidden="true">
-        <span className="capability-preview-title">{name}</span>
-        <div className="capability-preview-grid">{capabilityGalleries[imageKey].map((image, photoIndex) => image
-          ? <img src={image} alt="" key={photoIndex} />
-          : <span className="capability-preview-placeholder" key={photoIndex} aria-hidden="true" />
-        )}</div>
-      </div>
       <div className="card-meta"><h3>{name}</h3></div><p>{text}</p>
     </article>)}</div>
+    {activeGallery && createPortal(<div className="capability-dialog-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setActiveGallery(null); }}>
+      <section className="capability-dialog" role="dialog" aria-modal="true" aria-labelledby="capability-dialog-title" ref={dialogRef}>
+        <header className="capability-dialog-header">
+          <div><SectionLabel>{capabilities.label}</SectionLabel><h3 id="capability-dialog-title">{activeGallery.name}</h3></div>
+          <button className="capability-dialog-close" type="button" onClick={() => setActiveGallery(null)} ref={closeButtonRef}><X size={19} /><span>{copy.nav.close}</span></button>
+        </header>
+        <div className="capability-gallery-browser">
+          <nav className="capability-gallery-tabs" aria-label={`${activeGallery.name} products`}>
+            {capabilityGalleries[activeGallery.imageKey].map((image, photoIndex) => <button className={`capability-product-tab ${activePhotoIndex === photoIndex ? "is-active" : ""}`} type="button" aria-pressed={activePhotoIndex === photoIndex} aria-label={`${activeGallery.name} product ${photoIndex + 1}`} onClick={() => setActivePhotoIndex(photoIndex)} key={image || `${activeGallery.imageKey}-${photoIndex}`}>
+              {image ? <img src={image} alt="" /> : <span className="capability-product-tab-placeholder">{activeGallery.name}</span>}
+              <span className="capability-product-tab-label">PRODUCT {String(photoIndex + 1).padStart(2, "0")}</span>
+            </button>)}
+          </nav>
+          <div className="capability-product-stage" aria-live="polite">
+            {capabilityGalleries[activeGallery.imageKey][activePhotoIndex]
+              ? <img src={capabilityGalleries[activeGallery.imageKey][activePhotoIndex]} alt={`${activeGallery.name} product ${activePhotoIndex + 1}`} />
+              : <div className="capability-gallery-placeholder"><span>{activeGallery.name}</span><small>{String(activePhotoIndex + 1).padStart(2, "0")}</small></div>}
+            <span className="capability-product-count">{String(activePhotoIndex + 1).padStart(2, "0")} / {String(capabilityGalleries[activeGallery.imageKey].length).padStart(2, "0")}</span>
+          </div>
+        </div>
+      </section>
+    </div>, document.body)}
   </section>;
 }
 
@@ -78,10 +137,17 @@ export function DifferenceSection() {
 export function WorkSection() {
   const { copy } = useLanguage();
   const { work } = copy;
-  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid"><figure className="large"><img src={selectedWorkImages.productionFloor} alt="Apparel production detail" /><figcaption>{work.captions[0]}</figcaption></figure><figure><img src={selectedWorkImages.denimWash} alt="Denim wash detail" /><figcaption>{work.captions[1]}</figcaption></figure><figure><img src={selectedWorkImages.fabricFinishing} alt="Fabric detail" /><figcaption>{work.captions[2]}</figcaption></figure></div></section>;
+  const workVideos = [
+    "/assets/card1.mp4",
+    "/assets/card2.mp4",
+    "/assets/card3.mp4",
+    "/assets/card4.mp4",
+    "/assets/card5.mp4"
+  ];
+
+  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} autoPlay muted loop playsInline preload="metadata" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} />}<figcaption>{work.captions[index]}</figcaption></figure>)}</div></section>;
 }
 
 export function ClosingSection() {
-  const { copy } = useLanguage();
-  return <section className="closing"><img src={closingImage} alt="" /><div><img className="closing-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" /><p>{copy.closing.before} <em>{copy.closing.emphasis}</em></p></div></section>;
+  return null;
 }
