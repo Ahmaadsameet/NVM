@@ -44,10 +44,10 @@
   background: transparent;
   border: 0;
   font-weight: 700;
-  transition: color .3s ease, transform .25s ease, text-shadow .25s ease;
+  transition: color .3s ease, transform .25s ease;
 }
 
-.nav-pill:hover, .nav-pill:focus-visible { color: #000000; text-shadow: 0 5px 12px rgb(1, 13, 13); transform: translateY(-3px); }
+.nav-pill:hover, .nav-pill:focus-visible { color: #0e0e0d; box-shadow: none; text-shadow: none; transform: translateY(-2px); }
 .nav-pill:focus-visible { outline: 0; }
 
 .scroll-link, .text-link { display: inline-flex; align-items: center; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid currentColor; font-size: 11px; font-weight: 600; letter-spacing: .14em; }

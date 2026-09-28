@@ -52,13 +52,22 @@
 .capability-product-tab-placeholder { padding: 5px; color: #797974; font-size: 8px; text-align: center; }
 .capability-product-tab-label { display: block; padding: 0 3px 2px; }
 .capability-product-stage { position: relative; display: grid; place-items: center; min-width: 0; min-height: 0; overflow: hidden; background: #f7f7f5; border: 1px solid #373734; border-radius: 10px; }
-.capability-product-stage > img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.capability-product-stage > img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: center; backface-visibility: hidden; animation: capabilityImageRoll .58s cubic-bezier(.2, .78, .2, 1) both; }
 .capability-product-count { position: absolute; right: 14px; bottom: 14px; padding: 8px 10px; color: #fafaf8; background: rgba(24, 24, 23, .88); border: 1px solid rgba(255, 255, 255, .18); border-radius: 999px; font: 9px "IBM Plex Mono", monospace; letter-spacing: .12em; }
 .capability-gallery-placeholder { display: flex; align-items: flex-end; justify-content: space-between; width: 100%; height: 100%; padding: 24px; color: #797974; background: #f7f7f5; font: 11px "IBM Plex Mono", monospace; letter-spacing: .12em; }
 .capability-gallery-placeholder small { color: #a7a7a2; font: inherit; }
 
 @keyframes capabilityBackdropIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes capabilityDialogIn { from { opacity: .8; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes capabilityImageRoll {
+  0% { opacity: 0; transform: perspective(900px) rotateY(-72deg) scale(.96); }
+  68% { opacity: 1; transform: perspective(900px) rotateY(7deg) scale(1.01); }
+  100% { opacity: 1; transform: perspective(900px) rotateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .capability-product-stage > img { opacity: 1; transform: none; animation: none; }
+}
 
 @media (max-width: 760px) {
   .capability-dialog-backdrop { padding: 12px; }

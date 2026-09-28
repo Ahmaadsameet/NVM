@@ -44,6 +44,7 @@ export function CapabilitiesSection() {
   const { capabilities } = copy;
   const [activeGallery, setActiveGallery] = React.useState(null);
   const [activePhotoIndex, setActivePhotoIndex] = React.useState(0);
+  const [rollingGallery, setRollingGallery] = React.useState(null);
   const dialogRef = React.useRef(null);
   const closeButtonRef = React.useRef(null);
 
@@ -85,10 +86,18 @@ export function CapabilitiesSection() {
     setActivePhotoIndex(0);
     setActiveGallery({ name, imageKey });
   };
+  const selectGallery = (name, imageKey) => {
+    if (rollingGallery) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      openGallery(name, imageKey);
+      return;
+    }
+    setRollingGallery({ name, imageKey });
+  };
   return <section className="capabilities section-pad" id="make">
     <div className="section-heading"><div><SectionLabel>{capabilities.label}</SectionLabel><h2>{capabilities.titleBefore}<br /><em>{capabilities.titleEmphasis}</em> {capabilities.titleAfter}</h2></div><p>{capabilities.description}</p></div>
-    <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className="capability-card" tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} onClick={() => openGallery(name, imageKey)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openGallery(name, imageKey); } }} key={imageKey}>
-      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} /></div>
+    <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className={`capability-card ${rollingGallery?.imageKey === imageKey ? "is-rolling" : ""}`} tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} aria-disabled={Boolean(rollingGallery)} onClick={() => selectGallery(name, imageKey)} onAnimationEnd={(event) => { if (event.animationName === "capabilityCardRoll" && rollingGallery?.imageKey === imageKey) { openGallery(name, imageKey); setRollingGallery(null); } }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectGallery(name, imageKey); } }} key={imageKey}>
+      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} /><span className="capability-explore">EXPLORE MORE</span></div>
       <div className="card-meta"><h3>{name}</h3></div><p>{text}</p>
     </article>)}</div>
     {activeGallery && createPortal(<div className="capability-dialog-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setActiveGallery(null); }}>
@@ -106,8 +115,8 @@ export function CapabilitiesSection() {
           </nav>
           <div className="capability-product-stage" aria-live="polite">
             {capabilityGalleries[activeGallery.imageKey][activePhotoIndex]
-              ? <img src={capabilityGalleries[activeGallery.imageKey][activePhotoIndex]} alt={`${activeGallery.name} product ${activePhotoIndex + 1}`} />
-              : <div className="capability-gallery-placeholder"><span>{activeGallery.name}</span><small>{String(activePhotoIndex + 1).padStart(2, "0")}</small></div>}
+              ? <img key={`${activeGallery.imageKey}-${activePhotoIndex}`} src={capabilityGalleries[activeGallery.imageKey][activePhotoIndex]} alt={`${activeGallery.name} product ${activePhotoIndex + 1}`} />
+              : <div className="capability-gallery-placeholder" key={`${activeGallery.imageKey}-${activePhotoIndex}`}><span>{activeGallery.name}</span><small>{String(activePhotoIndex + 1).padStart(2, "0")}</small></div>}
             <span className="capability-product-count">{String(activePhotoIndex + 1).padStart(2, "0")} / {String(capabilityGalleries[activeGallery.imageKey].length).padStart(2, "0")}</span>
           </div>
         </div>

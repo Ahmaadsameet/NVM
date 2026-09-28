@@ -1,4 +1,4 @@
-.booking { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; color: var(--paper); background: var(--charcoal); text-align: center; }
+.booking { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; scroll-margin-top: 76px; color: var(--paper); background: var(--charcoal); text-align: center; }
 .booking .eyebrow { color: #a7a7a2; }
 .booking h2 { font-size: clamp(44px, 7vw, 88px); }
 .book-title { display: flex; align-items: baseline; justify-content: center; gap: .22em; perspective: 800px; }

@@ -37,7 +37,7 @@ export default class HomePage extends React.Component {
 
   render() {
     const { menuOpen } = this.state;
-    return <div className="app"><ScrollEffects /><Header menuOpen={menuOpen} onToggle={() => this.setState({ menuOpen: !menuOpen })} /><MobileMenu open={menuOpen} onClose={() => this.setState({ menuOpen: false })} /><main><Hero /><Ticker /><IntroSection /><CapabilitiesSection /><ProcessSection /><QualitySection /><DifferenceSection /><WorkSection /><ClosingSection /><BookingSection state={this.state} onSubmit={this.handleSubmit} onBriefSubmit={this.handleBriefSubmit} /></main><LocalizedFooter /></div>;
+    return <div className="app"><ScrollEffects /><Header menuOpen={menuOpen} onToggle={() => this.setState({ menuOpen: !menuOpen })} /><MobileMenu open={menuOpen} onClose={() => this.setState({ menuOpen: false })} /><main><Hero /><Ticker /><IntroSection /><CapabilitiesSection /><WorkSection /><QualitySection /><DifferenceSection /><ProcessSection /><ClosingSection /><BookingSection state={this.state} onSubmit={this.handleSubmit} onBriefSubmit={this.handleBriefSubmit} /></main><LocalizedFooter /></div>;
   }
 }
 

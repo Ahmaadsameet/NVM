@@ -44,6 +44,7 @@ export class ScrollEffects extends React.Component {
     });
     const lightBackdrop = section && !section.matches(".hero, .difference, .closing, .booking");
     root.classList.toggle("header-over-light", Boolean(lightBackdrop));
+    root.classList.toggle("header-over-booking", Boolean(section?.matches(".booking")));
 
     const mobileCta = document.querySelector(".mobile-sticky-cta");
     if (!mobileCta) return;
