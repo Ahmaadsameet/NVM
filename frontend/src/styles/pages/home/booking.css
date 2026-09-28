@@ -15,13 +15,13 @@
 .booking-options.has-selection { grid-template-columns: minmax(0, 1fr); }
 .booking-option { display: flex; flex-direction: column; align-items: stretch; width: 100%; min-height: 240px; background: transparent; font: inherit; text-align: left; cursor: pointer; }
 .booking-option.bright { background: var(--paper); }
-.booking-option h3 { margin-top: 24px; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.12; }
+.booking-option h3 { margin-top: 24px; font-family: Archivo, Arial, sans-serif; font-size: clamp(22px, 2.6vw, 30px); font-weight: 600; line-height: 1.12; letter-spacing: -.02em; text-transform: none; }
 .booking-option-action { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 24px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; }
 .booking-form-card { grid-column: 1 / -1; overflow: visible; padding: clamp(26px, 3vw, 38px); background: #141413; animation: bookingCardExpand .4s cubic-bezier(.22, 1, .36, 1) both; }
 .booking-form-card:hover { transform: none; box-shadow: none; }
 .booking-form-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding-bottom: 22px; border-bottom: 1px solid #373734; }
 .booking-form-card-heading > div { min-width: 0; }
-.booking-form-card-heading h3 { margin-top: 12px; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.12; }
+.booking-form-card-heading h3 { margin-top: 12px; font-family: Archivo, Arial, sans-serif; font-size: clamp(22px, 2.6vw, 30px); font-weight: 600; line-height: 1.12; letter-spacing: -.02em; text-transform: none; }
 .booking-form-card .booking-form-card-heading p { display: block; max-width: 540px; margin-top: 14px; padding: 0; color: var(--muted); border: 0; font-size: 14px; line-height: 1.5; }
 .booking-close { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; min-height: 30px; padding: 7px 10px; color: #c2c2be; background: rgba(255, 255, 255, .025); border: 1px solid #3a3a38; border-radius: 999px; font: 700 8px "IBM Plex Mono", monospace; letter-spacing: .11em; cursor: pointer; transition: color .25s ease, background-color .25s ease, border-color .25s ease, transform .25s ease; }
 .booking-close:hover, .booking-close:focus-visible { color: #20201e; background: #fafaf9; border-color: #fafaf9; transform: translateY(-1px); outline: 0; }

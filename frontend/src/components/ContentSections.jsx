@@ -48,14 +48,14 @@ function AnimatedStatValue({ value }) {
     const targets = value.split("–").map(Number);
     let frameId;
     let startTimer;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      observer.disconnect();
+    let loopTimer;
+    let isVisible = false;
+    let isRunning = false;
+
+    const runCount = () => {
+      if (!isVisible || isRunning) return;
+      isRunning = true;
       setDisplayValue(zeroValue);
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        setDisplayValue(value);
-        return;
-      }
       startTimer = window.setTimeout(() => {
         const startedAt = performance.now();
         const update = (now) => {
@@ -63,15 +63,37 @@ function AnimatedStatValue({ value }) {
           const eased = 1 - Math.pow(1 - progress, 3);
           const sharedStep = progress === 1 ? Math.max(...targets) : Math.floor(Math.max(...targets) * eased);
           setDisplayValue(targets.map(target => String(Math.min(sharedStep, target)).padStart(2, "0")).join("–"));
-          if (progress < 1) frameId = requestAnimationFrame(update);
+          if (progress < 1) {
+            frameId = requestAnimationFrame(update);
+          } else {
+            isRunning = false;
+            loopTimer = window.setTimeout(runCount, 5000);
+          }
         };
         frameId = requestAnimationFrame(update);
       }, 220);
+    };
+
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setDisplayValue(value);
+        return;
+      }
+      if (isVisible) {
+        runCount();
+      } else {
+        window.clearTimeout(startTimer);
+        window.clearTimeout(loopTimer);
+        if (frameId) cancelAnimationFrame(frameId);
+        isRunning = false;
+      }
     }, { threshold: .55 });
     if (valueRef.current) observer.observe(valueRef.current);
     return () => {
       observer.disconnect();
       window.clearTimeout(startTimer);
+      window.clearTimeout(loopTimer);
       if (frameId) cancelAnimationFrame(frameId);
     };
   }, [value, zeroValue]);
