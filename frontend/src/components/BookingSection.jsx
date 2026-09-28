@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
 
@@ -7,10 +7,14 @@ export function BookingSection({ state, onSubmit, onBriefSubmit }) {
   const { copy } = useLanguage();
   const t = copy.booking;
   const [mode, setMode] = React.useState(null);
+  const titleWords = [...t.titleBefore.trim().split(/\s+/), t.titleEmphasis];
   return (
-    <section className="booking section-pad" id="book">
+    <section className={`booking section-pad ${mode ? "has-form" : ""}`} id="book">
       <SectionLabel>{t.label}</SectionLabel>
-      <h2 className="book-title"><span>{t.titleBefore}</span> <em>{t.titleEmphasis}</em></h2>
+      <h2 className="book-title" aria-label={`${t.titleBefore} ${t.titleEmphasis}`}>{titleWords.map((word, index) => {
+        const Tag = index === titleWords.length - 1 ? "em" : "span";
+        return <Tag className="book-title-word" style={{ "--word-index": index }} aria-hidden="true" key={`${word}-${index}`}>{word}</Tag>;
+      })}</h2>
       <p>{t.description}</p>
       {mode === null ? <div className="comparison booking-options">
         <button className="comparison-card booking-option" type="button" onClick={() => setMode("inquiry")}>
@@ -26,7 +30,6 @@ export function BookingSection({ state, onSubmit, onBriefSubmit }) {
           <span className="booking-option-action">{t.openBrief} <ArrowUpRight size={16} /></span>
         </button>
       </div> : <div className="comparison booking-options has-selection">
-        <button className="booking-back" type="button" onClick={() => setMode(null)}><ArrowLeft size={16} /> {copy.nav.close}</button>
         <div className="comparison-card booking-form-card">
           <div className="booking-form-card-heading">
             <div>
@@ -34,6 +37,7 @@ export function BookingSection({ state, onSubmit, onBriefSubmit }) {
               <h3>{mode === "inquiry" ? t.sendInquiry : t.briefLabel}</h3>
               <p>{mode === "inquiry" ? t.description : t.briefDescription}</p>
             </div>
+            <button className="booking-close" type="button" aria-label={copy.nav.close} onClick={() => setMode(null)}><X size={13} aria-hidden="true" /><span>{copy.nav.close}</span></button>
           </div>
           {mode === "inquiry" ? state.submitted ? <div className="success">{t.thanks}</div> : <form id="inquiry-form" onSubmit={onSubmit}>
             <div className="form-grid"><label>{t.name}<input name="name" required type="text" placeholder={t.namePlaceholder} /></label><label>{t.email}<input name="email" required type="email" placeholder="you@brand.com" /></label></div>

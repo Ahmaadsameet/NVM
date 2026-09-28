@@ -24,11 +24,15 @@ export class ScrollEffects extends React.Component {
   componentWillUnmount() {
     window.removeEventListener("scroll", this.handleScroll);
     this.observer?.disconnect();
+    document.documentElement.style.removeProperty("--header-effect-progress");
   }
 
   handleScroll = () => {
     const root = document.documentElement;
-    root.classList.toggle("has-scrolled", window.scrollY > 24);
+    const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    const headerEffectProgress = Math.min(Math.max((scrollY - 4) / 76, 0), 1);
+    root.style.setProperty("--header-effect-progress", headerEffectProgress.toFixed(3));
+    root.classList.toggle("has-scrolled", scrollY > 12);
 
     const header = document.querySelector(".site-header");
     if (!header) return;
@@ -125,7 +129,7 @@ export function Header({ menuOpen, onToggle }) {
     <>
     <header className="site-header">
       <a className="brand" href="#top" aria-label="North Weave Mills home">
-        <img className="brand-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" />
+        <img className="brand-logo header-brand-logo" src="/assets/nwm-mark-transparent.png" alt="North Weave Mills" />
       </a>
       <nav className={`desktop-nav ${menuOpen ? "hidden" : ""}`}>
         {NAV_LINKS.map(({ id, label }) => (
@@ -172,7 +176,10 @@ export function Hero() {
       <div className="hero-overlay" />
       <div className="hero-content">
         <SectionLabel>{copy.hero.label}</SectionLabel>
-        <h1>{copy.hero.line1}<br /><em>{copy.hero.emphasis}</em> {copy.hero.line2}</h1>
+        <h1>
+          <span className="hero-title-line"><span>{copy.hero.line1}</span></span>
+          <span className="hero-title-line"><span><em className="hero-structured-word">{copy.hero.emphasis}</em> {copy.hero.line2}</span></span>
+        </h1>
         <p>{copy.hero.description}</p>
         <div className="hero-actions">
           <a className="solid-button" href="#book">{copy.nav.book} <ArrowUpRight size={16} /></a>

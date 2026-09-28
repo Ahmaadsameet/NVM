@@ -36,7 +36,7 @@ export function Ticker() {
 export function IntroSection() {
   const { copy } = useLanguage();
   const values = ["01", "02", "06–08"];
-  return <section className="intro section-pad" id="stats"><img className="intro-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" /><p className="statement">{copy.intro.before} <em>{copy.intro.emphasis}</em></p><div className="stats">{copy.intro.stats.map((label, index) => <div key={label}><strong>{values[index]}</strong><span>{label}</span></div>)}</div></section>;
+  return <section className="intro section-pad" id="stats"><img className="intro-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" /><p className="statement">{copy.intro.before} <em>{copy.intro.emphasis}</em></p><div className="stats">{copy.intro.stats.map((label, index) => <div key={label}><strong className="stat-value"><span>{values[index]}</span></strong><span>{label}</span></div>)}</div></section>;
 }
 
 export function CapabilitiesSection() {

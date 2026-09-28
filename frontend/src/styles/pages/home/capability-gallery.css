@@ -28,17 +28,18 @@
 }
 
 .capability-dialog-header {
-  display: flex;
+  display: grid;
   flex: 0 0 auto;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   gap: 20px;
   padding: 20px 24px;
   border-bottom: 1px solid #373734;
 }
 
+.capability-dialog-header > div { grid-column: 2; text-align: center; }
 .capability-dialog-header h3 { margin-top: 7px; font-size: 28px; font-weight: 600; line-height: 1.1; }
-.capability-dialog-close { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 13px; color: #fafaf8; background: transparent; border: 1px solid rgba(255, 255, 255, .25); border-radius: 999px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; cursor: pointer; transition: transform .25s ease, background-color .25s ease, color .25s ease, border-color .25s ease; }
+.capability-dialog-close { display: inline-flex; grid-column: 3; justify-self: end; flex: 0 0 auto; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 13px; color: #fafaf8; background: transparent; border: 1px solid rgba(255, 255, 255, .25); border-radius: 999px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; cursor: pointer; transition: transform .25s ease, background-color .25s ease, color .25s ease, border-color .25s ease; }
 .capability-dialog-close:hover, .capability-dialog-close:focus-visible { color: #0e0e0d; background: #fafaf8; border-color: #fafaf8; transform: translateY(-2px); outline: 0; }
 
 .capability-gallery-browser { display: grid; flex: 1 1 auto; grid-template-columns: 176px minmax(0, 1fr); gap: 16px; min-height: 0; padding: 22px 24px 26px; }
@@ -72,5 +73,8 @@
 }
 
 @media (max-width: 480px) {
+  .capability-dialog-header { grid-template-columns: 40px minmax(0, 1fr) 40px; gap: 8px; }
+  .capability-dialog-close { width: 36px; min-height: 36px; padding: 0; }
+  .capability-dialog-close span { display: none; }
   .capability-gallery-browser { grid-template-columns: 80px minmax(0, 1fr); gap: 10px; padding: 10px; }
 }

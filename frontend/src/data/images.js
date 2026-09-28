@@ -11,28 +11,28 @@ export const capabilityImages = {
 // Replace the null entries with the three additional photos for each category.
 export const capabilityGalleries = {
   denim: [
-    "/assets/capabilities/denim/zip-jacket.png",
-    "/assets/capabilities/denim/sherpa-jacket.png",
-    "/assets/capabilities/denim/olive-overshirt.png",
+    "/assets/capabilities/denim/zip-jacket.webp",
+    "/assets/capabilities/denim/sherpa-jacket.webp",
+    "/assets/capabilities/denim/olive-overshirt.webp",
     capabilityImages.denim
   ],
   biker: [
     "/assets/capabilities/biker/leather-glove.jpg",
-    "/assets/capabilities/biker/carbon-glove.jpg",
-    "/assets/capabilities/biker/touring-jacket.jpg",
-    "/assets/capabilities/biker/racing-jacket.jpg"
+    "/assets/capabilities/biker/carbon-glove.webp",
+    "/assets/capabilities/biker/touring-jacket.webp",
+    "/assets/capabilities/biker/racing-jacket.webp"
   ],
   leather: [
-    "/assets/capabilities/leather/olive-jacket.png",
-    "/assets/capabilities/leather/distressed-black-jacket.png",
-    "/assets/capabilities/leather/pocket-jacket.png",
-    "/assets/capabilities/leather/brown-jacket.png"
+    "/assets/capabilities/leather/olive-jacket.webp",
+    "/assets/capabilities/leather/distressed-black-jacket.webp",
+    "/assets/capabilities/leather/pocket-jacket.webp",
+    "/assets/capabilities/leather/brown-jacket.webp"
   ],
   fashion: [
-    "/assets/capabilities/fashion/navy-plaid-hooded-shirt.png",
-    "/assets/capabilities/fashion/red-buffalo-plaid-hooded-shirt.png",
-    "/assets/capabilities/fashion/red-white-plaid-hooded-shirt.png",
-    "/assets/capabilities/fashion/green-buffalo-plaid-hooded-shirt.png"
+    "/assets/capabilities/fashion/navy-plaid-hooded-shirt.webp",
+    "/assets/capabilities/fashion/red-buffalo-plaid-hooded-shirt.webp",
+    "/assets/capabilities/fashion/red-white-plaid-hooded-shirt.webp",
+    "/assets/capabilities/fashion/green-buffalo-plaid-hooded-shirt.webp"
   ],
   ...Object.fromEntries(
     Object.entries(capabilityImages)
@@ -43,9 +43,9 @@ export const capabilityGalleries = {
 
 // Images used by the selected work gallery.
 export const selectedWorkImages = [
-  "/assets/capabilities/denim/zip-jacket.png",
-  "/assets/capabilities/denim/olive-overshirt.png",
-  "/assets/capabilities/leather/olive-jacket.png",
-  "/assets/capabilities/biker/touring-jacket.jpg",
-  "/assets/capabilities/fashion/green-buffalo-plaid-hooded-shirt.png"
+  "/assets/capabilities/denim/zip-jacket.webp",
+  "/assets/capabilities/denim/olive-overshirt.webp",
+  "/assets/capabilities/leather/olive-jacket.webp",
+  "/assets/capabilities/biker/touring-jacket.webp",
+  "/assets/capabilities/fashion/green-buffalo-plaid-hooded-shirt.webp"
 ];

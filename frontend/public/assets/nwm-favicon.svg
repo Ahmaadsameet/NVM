@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="North Weave Mills">
+  <style>
+    text { fill: #181817; font: 700 17px Arial, sans-serif; letter-spacing: -0.7px; }
+    @media (prefers-color-scheme: dark) { text { fill: #fafaf8; } }
+  </style>
+  <text x="3" y="17">North</text>
+  <text x="3" y="37">Weave</text>
+  <text x="3" y="57">Mills</text>
+</svg>
