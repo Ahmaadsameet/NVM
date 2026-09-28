@@ -1,3 +1,48 @@
+/* MacBook-sized desktop viewports: keep type and content on one shared grid. */
+@media (min-width: 1101px) and (max-width: 1800px) {
+  .section-pad { padding-right: clamp(44px, 4.2vw, 68px); padding-left: clamp(44px, 4.2vw, 68px); }
+  .site-header { padding-right: clamp(44px, 4.2vw, 68px); padding-left: clamp(44px, 4.2vw, 68px); }
+  .hero-content { width: 100%; padding-right: clamp(44px, 4.2vw, 68px); padding-left: clamp(44px, 4.2vw, 68px); }
+  .hero-note { right: clamp(44px, 4.2vw, 68px); }
+  .section-heading > div { min-width: 0; max-width: 760px; }
+  .section-heading > p { flex: 0 1 330px; }
+  h1, h2, .statement { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  .process-row > div { min-width: 0; }
+  .booking-options { width: min(1080px, calc(100vw - 136px)); }
+  .capabilities .image-wrap { max-height: none; aspect-ratio: 8 / 5; }
+}
+
+/* 13- and 14-inch laptops commonly have less vertical room than desktop monitors. */
+@media (min-width: 1101px) and (max-width: 1439px) {
+  .section-pad { padding-top: 76px; padding-bottom: 76px; }
+  .hero h1 { max-width: 700px; font-size: clamp(48px, 5.2vw, 66px); }
+  .capabilities,
+  .selected-work { padding-top: 58px; padding-bottom: 58px; }
+  .capability-grid { gap: 22px 20px; margin-top: 32px; }
+  .capabilities .image-wrap { max-height: none; aspect-ratio: 8 / 5; }
+  .work-grid { gap: 14px; margin-top: 38px; padding-bottom: 28px; }
+  .process-list { margin-top: 44px; }
+  .process-row { padding-top: 19px; padding-bottom: 19px; }
+  .comparison { margin-top: 36px; }
+  .footer-main { gap: 42px; }
+}
+
+/* Keep full-screen sections composed on shorter MacBook browser windows. */
+@media (min-width: 1101px) and (max-height: 900px) {
+  .section-pad { padding-top: 58px; padding-bottom: 58px; }
+  .hero-content { padding-bottom: clamp(54px, 7vh, 72px); }
+  .capabilities,
+  .selected-work { padding-top: 46px; padding-bottom: 46px; }
+  .capability-grid { gap: 18px 20px; margin-top: 28px; }
+  .capabilities .image-wrap { max-height: none; aspect-ratio: 8 / 5; }
+  .card-meta { margin-top: 10px; }
+  .capability-card p { font-size: 12px; line-height: 1.45; }
+  .work-grid { margin-top: 30px; padding-bottom: 22px; }
+  .booking-options { margin-top: 28px; }
+  .booking-option { min-height: 220px; }
+}
+
 @media (min-width: 761px) and (max-width: 1100px) {
   .site-header { width: 100%; }
   .desktop-nav { gap: 7px; }
@@ -17,15 +62,17 @@
 @media (max-width: 760px) {
   .desktop-nav { display: none; }
   .menu-button { display: block; }
-  .site-header { inset: 0 0 auto; width: 100%; margin: 0; padding: 14px clamp(20px, 5vw, 38px); border: 0; border-radius: 0; }
-  html.has-scrolled .site-header { padding-top: 10px; padding-bottom: 10px; }
+  .site-header { inset: 0 0 auto; width: 100%; margin: 0; padding: calc(14px + env(safe-area-inset-top)) max(clamp(20px, 5vw, 38px), env(safe-area-inset-right)) 14px max(clamp(20px, 5vw, 38px), env(safe-area-inset-left)); border: 0; border-radius: 0; }
+  html.has-scrolled .site-header { padding-top: calc(10px + env(safe-area-inset-top)); padding-bottom: 10px; }
   .site-header .brand-logo { height: 29px; }
-  .mobile-sticky-cta { position: fixed; right: auto; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; z-index: 39; display: flex; align-items: center; justify-content: center; width: max-content; min-width: 136px; min-height: 42px; padding: 0 16px; color: #20201e; background: rgba(250, 250, 249, .72); border: 1px solid rgba(250, 250, 249, .3); border-radius: 999px; box-shadow: 0 7px 18px rgba(0, 0, 0, .18); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 9px; font-weight: 700; letter-spacing: .12em; transform: translateX(-50%); transition: transform .25s ease, color .25s ease, background-color .25s ease; }
+  .mobile-sticky-cta { position: fixed; right: auto; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; z-index: 39; display: flex; align-items: center; justify-content: center; width: max-content; min-width: 136px; min-height: 42px; padding: 0 16px; color: #20201e; background: rgba(250, 250, 249, .72); border: 1px solid rgba(250, 250, 249, .3); border-radius: 999px; box-shadow: 0 7px 18px rgba(0, 0, 0, .18); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 9px; font-weight: 700; letter-spacing: .12em; transform: translateX(-50%); transition: transform .25s ease, color .25s ease, background-color .25s ease; }
   .mobile-sticky-cta:hover, .mobile-sticky-cta:focus-visible { background: #e6e6e2; transform: translate(-50%, -2px); }
   .mobile-cta-over-light .mobile-sticky-cta { color: #fafaf9; background: rgba(32, 32, 30, .7); border-color: rgba(32, 32, 30, .24); }
   .mobile-cta-over-light .mobile-sticky-cta:hover, .mobile-cta-over-light .mobile-sticky-cta:focus-visible { background: #41413e; }
-  .mobile-menu { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; padding: 20px; color: #fafaf9; background: rgba(14, 14, 13, .72); backdrop-filter: blur(16px) saturate(112%); -webkit-backdrop-filter: blur(16px) saturate(112%); }
-  .mobile-menu-top { display: flex; align-items: center; justify-content: space-between; }
+  .mobile-menu { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; min-height: 100dvh; padding: calc(20px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left)); color: #fafaf9; background: rgba(14, 14, 13, .72); backdrop-filter: blur(16px) saturate(112%); -webkit-backdrop-filter: blur(16px) saturate(112%); }
+  .mobile-menu-top { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
+  .mobile-menu-top .brand { display: flex; align-items: center; min-height: 44px; overflow: visible; }
+  .mobile-menu-top .brand-logo { width: auto; height: 42px; object-fit: contain; }
   .mobile-menu-top button { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 0 14px; color: #fafaf9; background: #0e0e0d; border: 1.5px solid #fafaf9; border-radius: 999px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; cursor: pointer; transition: background-color .3s ease, color .3s ease, border-color .3s ease, transform .25s ease; }
   .mobile-menu-top button:hover, .mobile-menu-top button:focus-visible, .mobile-menu-top button:active { color: #0e0e0d; background: #fafaf9; border-color: #fafaf9; transform: translateY(-1px); outline: 0; }
   .mobile-menu nav { display: flex; flex-direction: column; margin-top: 65px; }
@@ -35,16 +82,16 @@
   .mobile-language-picker .language-trigger { justify-content: center; width: auto; min-width: 136px; min-height: 42px; padding: 0 16px; border-radius: 999px; font-size: 9px; }
   .mobile-language-picker .language-menu { top: auto; right: 0; bottom: calc(100% + 10px); left: 0; }
   .mobile-cta { align-self: center; width: auto; min-width: 136px; min-height: 42px; margin: 14px auto 0; padding: 0 16px; font-size: 9px; }
-  .hero { height: 100svh; min-height: 100vh; }
-  .hero-content { padding-bottom: 104px; }
+  .hero { align-items: center; height: 100dvh; min-height: 100svh; }
+  .hero-content { padding-top: calc(70px + env(safe-area-inset-top)); padding-right: max(clamp(20px, 5vw, 38px), env(safe-area-inset-right)); padding-bottom: calc(42px + env(safe-area-inset-bottom)); padding-left: max(clamp(20px, 5vw, 38px), env(safe-area-inset-left)); text-align: left; transform: translateY(-3vh); }
   .hero h1 { font-size: clamp(34px, 9.5vw, 52px); }
   .hero-content > p { max-width: 34ch; font-size: 14px; }
   .hero-actions { gap: 18px; margin-top: 27px; }
   .booking.section-pad { padding-top: 42px; padding-bottom: 42px; }
-  .booking h2 { font-size: clamp(38px, 10vw, 50px); }
+  .booking h2 { font-size: clamp(42px, 11vw, 58px); }
   .booking > p { max-width: 34ch; font-size: 13px; }
   .booking:not(.has-form) .booking-options { gap: 10px; margin-top: 26px; }
-  .booking:not(.has-form) .booking-option { padding: 18px; }
+  .booking:not(.has-form) .booking-option { min-height: 0; padding: 18px; }
   .booking:not(.has-form) .booking-option h3 { margin-top: 12px; font-size: 21px; }
   .booking:not(.has-form) .booking-option > p { display: none; }
   .booking:not(.has-form) .booking-option-action { padding-top: 14px; }
@@ -77,14 +124,14 @@
   .footer-main { grid-template-columns: 1fr 1fr; }
   .footer-main > div:first-child { grid-column: span 2; }
   .footer-logo { height: 54px; }
-  .footer-bottom { flex-direction: column; gap: 12px; padding-bottom: 76px; }
+  .footer-bottom { flex-direction: column; gap: 12px; padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 420px) {
   .section-pad { padding-right: 16px; padding-left: 16px; }
   .site-header .brand-logo { height: 27px; }
-  .hero { min-height: 100vh; }
-  .hero-content { padding-bottom: 104px; }
+  .hero { min-height: 100svh; }
+  .hero-content { padding-bottom: calc(42px + env(safe-area-inset-bottom)); }
   .hero-actions { align-items: flex-start; flex-direction: column; gap: 22px; }
   .hero-note { right: 16px; bottom: 20px; font-size: 8px; }
   .stats { grid-template-columns: 1fr; }
@@ -94,6 +141,26 @@
   .section-topline .eyebrow:last-child { text-align: right; }
   .comparison-card { padding: 22px 18px; }
   .brief-toggle { max-width: 100%; white-space: normal; }
+}
+
+/* Compact iPhones and landscape mode: retain all controls inside rounded screen edges. */
+@media (max-width: 760px) and (max-height: 700px) {
+  .mobile-menu nav { margin-top: 28px; }
+  .mobile-menu nav a { min-height: 48px; padding-top: 10px; padding-bottom: 10px; font-size: 18px; }
+  .hero-content { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  .hero h1 { font-size: clamp(32px, 8vw, 46px); }
+  .hero-content > p { margin-top: 12px; }
+  .hero-actions { margin-top: 18px; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .site-header { padding-top: max(8px, env(safe-area-inset-top)); padding-right: calc(18px + env(safe-area-inset-right)); padding-bottom: 8px; padding-left: calc(18px + env(safe-area-inset-left)); }
+  html.has-scrolled .site-header { padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: 8px; }
+  .hero-content { padding-right: calc(24px + env(safe-area-inset-right)); padding-bottom: calc(28px + env(safe-area-inset-bottom)); padding-left: calc(24px + env(safe-area-inset-left)); }
+  .hero h1 { max-width: 620px; font-size: clamp(30px, 7.5vh, 44px); }
+  .hero-content > p { display: none; }
+  .hero-actions { margin-top: 14px; }
+  .hero-note { right: calc(18px + env(safe-area-inset-right)); bottom: calc(12px + env(safe-area-inset-bottom)); }
 }
 
 @media (max-width: 360px) {

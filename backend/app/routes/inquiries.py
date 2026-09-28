@@ -1,55 +1,23 @@
-from datetime import datetime, timezone
-import sqlite3
+from fastapi import APIRouter, HTTPException, status
 
-from fastapi import APIRouter, Depends, HTTPException, status
-
-from ..auth import require_admin_token
-from ..database import get_connection
-from ..notifications import send_notification
-from ..schemas import Inquiry, InquiryCreate
+from ..notifications import NotificationError, send_notification
+from ..schemas import InquiryCreate
 
 
 router = APIRouter(prefix="/api/inquiries", tags=["Inquiries"])
 
 
-@router.post("", response_model=Inquiry, status_code=status.HTTP_201_CREATED)
-def create_inquiry(payload: InquiryCreate) -> Inquiry:
-    created_at = datetime.now(timezone.utc)
+@router.post("", response_model=InquiryCreate, status_code=status.HTTP_201_CREATED)
+def create_inquiry(payload: InquiryCreate) -> InquiryCreate:
     try:
-        with get_connection() as connection:
-            cursor = connection.execute(
-                """
-                INSERT INTO inquiries (name, email, message, created_at)
-                VALUES (?, ?, ?, ?)
-                """,
-                (payload.name, str(payload.email), payload.message, created_at.isoformat()),
-            )
-            connection.commit()
-            inquiry_id = cursor.lastrowid
-    except sqlite3.Error as error:
+        send_notification(
+            "New North Weave Mills inquiry",
+            f"Name: {payload.name}\nEmail: {payload.email}\n\n{payload.message}",
+            reply_to=str(payload.email),
+        )
+    except NotificationError as error:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="The inquiry could not be saved. Please try again.",
+            detail="The inquiry could not be emailed. Please try again.",
         ) from error
-
-    inquiry = Inquiry(
-        id=inquiry_id,
-        name=payload.name,
-        email=payload.email,
-        message=payload.message,
-        created_at=created_at,
-    )
-    send_notification(
-        "New North Weave Mills inquiry",
-        f"Name: {inquiry.name}\nEmail: {inquiry.email}\n\n{inquiry.message}",
-    )
-    return inquiry
-
-
-@router.get("", response_model=list[Inquiry], dependencies=[Depends(require_admin_token)])
-def list_inquiries() -> list[Inquiry]:
-    with get_connection() as connection:
-        rows = connection.execute(
-            "SELECT id, name, email, message, created_at FROM inquiries ORDER BY id DESC"
-        ).fetchall()
-    return [Inquiry(**dict(row)) for row in rows]
+    return payload

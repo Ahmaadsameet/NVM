@@ -6,13 +6,6 @@ services:
     container_name: nwm-backend
     env_file:
       - .env
-    environment:
-      # Read the path from .env; keep it under /app/data for persistence.
-      NWM_DATABASE_PATH: ${NWM_DATABASE_PATH:?Set NWM_DATABASE_PATH in the root .env}
-      # Keep SMTP dormant until notifications are intentionally enabled.
-      NWM_NOTIFICATIONS_ENABLED: ${NWM_NOTIFICATIONS_ENABLED:-false}
-    volumes:
-      - nwm-data:/app/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
@@ -32,6 +25,3 @@ services:
     ports:
       - "${NWM_FRONTEND_PORT:?Set NWM_FRONTEND_PORT in the root .env}:80"
     restart: unless-stopped
-
-volumes:
-  nwm-data:

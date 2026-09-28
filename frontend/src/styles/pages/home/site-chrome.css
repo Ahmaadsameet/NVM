@@ -69,22 +69,24 @@ html.header-over-booking .site-header .nav-pill:focus-visible {
     transition: none;
   }
   .site-header::before { transition: none; }
-  .site-header .brand-logo.header-brand-logo,
-  .site-header .brand:hover .header-brand-logo,
-  .site-header .brand:focus-visible .header-brand-logo { transform: none; animation: none; }
+  .site-header .brand-logo.header-brand-logo { transform: none; animation: none; }
 }
 
 .brand { display: flex; align-items: center; white-space: nowrap; }
-.site-header .brand { width: 132px; height: 38px; overflow: hidden; perspective: 420px; }
+.site-header .brand { width: 108px; height: 32px; overflow: hidden; }
+.header-logo-reveal { display: inline-flex; align-items: center; transform-origin: center; will-change: opacity, transform; animation: headerLogoDissolve 1.2s cubic-bezier(.22, 1, .36, 1) both; }
 .brand-logo { display: block; width: auto; height: 32px; object-fit: contain; transition: filter .25s ease; }
-.site-header .brand-logo.header-brand-logo { flex: 0 0 auto; width: auto; max-width: none; height: 60px; opacity: .72; transform-origin: center; backface-visibility: visible; animation: headerLogoPopRoll 5s cubic-bezier(.18, .82, .2, 1) 5s infinite; transition: filter .25s ease, opacity .3s ease; }
+.site-header .brand-logo.header-brand-logo { flex: 0 0 auto; width: auto; max-width: none; height: 48px; opacity: .72; transition: filter .25s ease, opacity .3s ease; }
 html.has-scrolled .site-header .brand-logo.header-brand-logo { opacity: .62; }
 
-@keyframes headerLogoPopRoll {
-  0%, 8%, 100% { transform: translateY(0) scale(1) rotateY(0); }
-  18% { transform: translateY(-3px) scale(1.1) rotateY(150deg); }
-  29% { transform: translateY(1px) scale(.98) rotateY(330deg); }
-  38%, 92% { transform: translateY(0) scale(1) rotateY(360deg); }
+@keyframes headerLogoDissolve {
+  from { opacity: 0; transform: translate3d(0, 3px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-logo-reveal,
+  .site-header .brand-logo.header-brand-logo { transform: none; filter: none; animation: none; }
 }
 .brand-mark, .monogram { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid currentColor; border-radius: 50%; font: 500 13px "IBM Plex Mono", monospace; letter-spacing: 0; }
 .desktop-nav { display: flex; align-items: center; gap: clamp(18px, 2.1vw, 36px); font-size: 11px; font-weight: 500; letter-spacing: .1em; }

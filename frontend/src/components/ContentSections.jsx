@@ -36,7 +36,47 @@ export function Ticker() {
 export function IntroSection() {
   const { copy } = useLanguage();
   const values = ["01", "02", "06–08"];
-  return <section className="intro section-pad" id="stats"><img className="intro-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" /><p className="statement">{copy.intro.before} <em>{copy.intro.emphasis}</em></p><div className="stats">{copy.intro.stats.map((label, index) => <div key={label}><strong className="stat-value"><span>{values[index]}</span></strong><span>{label}</span></div>)}</div></section>;
+  return <section className="intro section-pad" id="stats"><img className="intro-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" loading="lazy" decoding="async" /><p className="statement">{copy.intro.before} <em>{copy.intro.emphasis}</em></p><div className="stats">{copy.intro.stats.map((label, index) => <div key={label}><AnimatedStatValue value={values[index]} /><span>{label}</span></div>)}</div></section>;
+}
+
+function AnimatedStatValue({ value }) {
+  const zeroValue = value.includes("–") ? "00–00" : "00";
+  const [displayValue, setDisplayValue] = React.useState(zeroValue);
+  const valueRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const targets = value.split("–").map(Number);
+    let frameId;
+    let startTimer;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      setDisplayValue(zeroValue);
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setDisplayValue(value);
+        return;
+      }
+      startTimer = window.setTimeout(() => {
+        const startedAt = performance.now();
+        const update = (now) => {
+          const progress = Math.min((now - startedAt) / 1200, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const sharedStep = progress === 1 ? Math.max(...targets) : Math.floor(Math.max(...targets) * eased);
+          setDisplayValue(targets.map(target => String(Math.min(sharedStep, target)).padStart(2, "0")).join("–"));
+          if (progress < 1) frameId = requestAnimationFrame(update);
+        };
+        frameId = requestAnimationFrame(update);
+      }, 220);
+    }, { threshold: .55 });
+    if (valueRef.current) observer.observe(valueRef.current);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(startTimer);
+      if (frameId) cancelAnimationFrame(frameId);
+    };
+  }, [value, zeroValue]);
+
+  return <strong className="stat-value" ref={valueRef}><span>{displayValue}</span></strong>;
 }
 
 export function CapabilitiesSection() {
@@ -44,7 +84,6 @@ export function CapabilitiesSection() {
   const { capabilities } = copy;
   const [activeGallery, setActiveGallery] = React.useState(null);
   const [activePhotoIndex, setActivePhotoIndex] = React.useState(0);
-  const [rollingGallery, setRollingGallery] = React.useState(null);
   const dialogRef = React.useRef(null);
   const closeButtonRef = React.useRef(null);
 
@@ -86,18 +125,10 @@ export function CapabilitiesSection() {
     setActivePhotoIndex(0);
     setActiveGallery({ name, imageKey });
   };
-  const selectGallery = (name, imageKey) => {
-    if (rollingGallery) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      openGallery(name, imageKey);
-      return;
-    }
-    setRollingGallery({ name, imageKey });
-  };
   return <section className="capabilities section-pad" id="make">
     <div className="section-heading"><div><SectionLabel>{capabilities.label}</SectionLabel><h2>{capabilities.titleBefore}<br /><em>{capabilities.titleEmphasis}</em> {capabilities.titleAfter}</h2></div><p>{capabilities.description}</p></div>
-    <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className={`capability-card ${rollingGallery?.imageKey === imageKey ? "is-rolling" : ""}`} tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} aria-disabled={Boolean(rollingGallery)} onClick={() => selectGallery(name, imageKey)} onAnimationEnd={(event) => { if (event.animationName === "capabilityCardRoll" && rollingGallery?.imageKey === imageKey) { openGallery(name, imageKey); setRollingGallery(null); } }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectGallery(name, imageKey); } }} key={imageKey}>
-      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} /><span className="capability-explore">EXPLORE MORE</span></div>
+    <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className="capability-card" tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} onClick={() => openGallery(name, imageKey)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openGallery(name, imageKey); } }} key={imageKey}>
+      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} loading="lazy" decoding="async" /><span className="capability-explore">EXPLORE MORE</span></div>
       <div className="card-meta"><h3>{name}</h3></div><p>{text}</p>
     </article>)}</div>
     {activeGallery && createPortal(<div className="capability-dialog-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setActiveGallery(null); }}>
@@ -109,7 +140,7 @@ export function CapabilitiesSection() {
         <div className="capability-gallery-browser">
           <nav className="capability-gallery-tabs" aria-label={`${activeGallery.name} products`}>
             {capabilityGalleries[activeGallery.imageKey].map((image, photoIndex) => <button className={`capability-product-tab ${activePhotoIndex === photoIndex ? "is-active" : ""}`} type="button" aria-pressed={activePhotoIndex === photoIndex} aria-label={`${activeGallery.name} product ${photoIndex + 1}`} onClick={() => setActivePhotoIndex(photoIndex)} key={image || `${activeGallery.imageKey}-${photoIndex}`}>
-              {image ? <img src={image} alt="" /> : <span className="capability-product-tab-placeholder">{activeGallery.name}</span>}
+              {image ? <img src={image} alt="" loading="lazy" decoding="async" /> : <span className="capability-product-tab-placeholder">{activeGallery.name}</span>}
               <span className="capability-product-tab-label">PRODUCT {String(photoIndex + 1).padStart(2, "0")}</span>
             </button>)}
           </nav>
@@ -154,7 +185,29 @@ export function WorkSection() {
     "/assets/card5.mp4"
   ];
 
-  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} autoPlay muted loop playsInline preload="metadata" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} />}</figure>)}</div></section>;
+  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <ViewportVideo src={workVideos[index]} label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} loading="lazy" decoding="async" />}</figure>)}</div></section>;
+}
+
+function ViewportVideo({ src, label }) {
+  const videoRef = React.useRef(null);
+  const [shouldLoad, setShouldLoad] = React.useState(false);
+
+  React.useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return undefined;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setShouldLoad(true);
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    }, { rootMargin: "400px 0px", threshold: .01 });
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
+  return <video ref={videoRef} src={shouldLoad ? src : undefined} autoPlay={shouldLoad} muted loop playsInline preload="none" aria-label={label} />;
 }
 
 export function ClosingSection() {

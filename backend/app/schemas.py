@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -9,12 +7,6 @@ class InquiryCreate(BaseModel):
     name: str = Field(min_length=2, max_length=120)
     email: EmailStr
     message: str = Field(min_length=10, max_length=5000)
-
-
-class Inquiry(InquiryCreate):
-    id: int
-    created_at: datetime
-
 
 class ProjectBriefCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
@@ -27,8 +19,3 @@ class ProjectBriefCreate(BaseModel):
     tech_packs_available: bool
     colours: str = Field(min_length=2, max_length=1000)
     pieces_per_style: str = Field(min_length=1, max_length=1000)
-
-
-class ProjectBrief(ProjectBriefCreate):
-    id: int
-    created_at: datetime

@@ -1,16 +1,15 @@
 # Azure Ubuntu VM demo deployment
 
 This deployment runs two containers on one Ubuntu 24.04 LTS VM:
-`browser -> Nginx :80 -> backend:8000 -> SQLite`. Nginx serves the compiled
-React application. Uvicorn runs `backend.app.main:app`. SQLite remains in
-the existing `nwm-data` named volume at `/app/data/nwm.sqlite3`.
+`browser -> Nginx :80 -> backend:8000 -> SMTP`. Nginx serves the compiled
+React application. Uvicorn runs `backend.app.main:app`. Form submissions are
+emailed directly and are not stored on the VM.
 
 ```text
 Browser -> Nginx :80
              |-- page/assets -> /usr/share/nginx/html (built React)
              `-- /api/* -> backend:8000 (FastAPI + Uvicorn)
-                              |-- commit submission -> SQLite named volume
-                              `-- after commit -> optional SMTP STARTTLS :587 notification
+                              `-- validated form -> SMTP STARTTLS :587
 ```
 
 Run every Compose command from the project root, where `docker-compose.yml`
@@ -24,10 +23,9 @@ to build assets; the running frontend container uses Nginx.
 Install and start Docker Desktop with Linux containers, then run in
 PowerShell from the project root. Preserve your existing `.env`; if one does
 not exist, create it and enter the settings from the table in section 3 before
-starting. For these Docker checks, set `NWM_FRONTEND_PORT` to `80` and
-`NWM_DATABASE_PATH` to `/app/data/nwm.sqlite3` in that same file. Clear exported
-`NWM_*` shell variables when relying on `.env`; shell values take precedence
-over Compose interpolation of the public port and database path.
+starting. For these Docker checks, set `NWM_FRONTEND_PORT` to `80` and configure
+the SMTP settings in that same file. Clear exported `NWM_*` shell variables
+when relying on `.env`; shell values take precedence over file values.
 
 ```powershell
 if (-not (Test-Path -LiteralPath .env)) {
@@ -41,7 +39,7 @@ docker compose exec frontend nginx -t
 curl.exe -fsS http://localhost/api/health
 curl.exe -fsS -o NUL -w "%{http_code}\n" http://localhost/
 curl.exe -fsS -o NUL -w "%{http_code}\n" http://localhost/portfolio-preview
-foreach ($path in @('/.env', '/.git/config', '/data/nwm.sqlite3')) {
+foreach ($path in @('/.env', '/.git/config')) {
     curl.exe -sS -o NUL -w "%{http_code}\n" "http://localhost$path"
 }
 docker compose logs --tail=100 backend frontend
@@ -121,58 +119,28 @@ nano .env
 table below as `NAME=value` lines in this file, or securely transfer your
 existing private `.env` to the VM. Enter credentials only in that file.
 If a value contains `$` or `#`, single-quote the value in `.env` so Compose
-reads it literally. The following command fills a blank `NWM_ADMIN_TOKEN`
-(or adds it if missing), preserves a configured token, and never prints its
-value:
-
-```bash
-python3 - <<'PY'
-from pathlib import Path
-import secrets
-
-env_file = Path('.env')
-lines = env_file.read_text(encoding='utf-8').splitlines()
-for index, line in enumerate(lines):
-    if line.startswith('NWM_ADMIN_TOKEN='):
-        if not line.partition('=')[2].strip():
-            lines[index] = 'NWM_ADMIN_TOKEN=' + secrets.token_urlsafe(32)
-        break
-else:
-    lines.append('NWM_ADMIN_TOKEN=' + secrets.token_urlsafe(32))
-env_file.write_text('\n'.join(lines) + '\n', encoding='utf-8')
-PY
-chmod 600 .env
-```
+reads it literally.
 
 | Variable | Value or purpose |
 | --- | --- |
 | `NWM_FRONTEND_PORT` | `80`; public Nginx port used by Compose and the commands in this guide. Required and must be nonblank. |
-| `NWM_DATABASE_PATH` | `/app/data/nwm.sqlite3` for Docker; required and must be nonblank. Keep this path inside `/app/data` so the database and its sidecar files persist in the named volume. |
-| `NWM_ADMIN_TOKEN` | Generated secret for `X-Admin-Token` on `GET /api/inquiries`; keep it out of browser code. Blank disables that admin endpoint. |
 | `NWM_CORS_ORIGINS` | May remain blank: the browser and `/api/` share an origin through Nginx. |
-| `NWM_NOTIFICATIONS_ENABLED` | `false` by default. Set to `true` only when SMTP notifications are ready to be activated and tested. |
-| `NWM_NOTIFICATION_EMAIL` | Notification recipient; configure with SMTP or leave blank to skip email. |
+| `NWM_NOTIFICATION_EMAIL` | Required recipient for inquiry and project-brief emails. |
 | `NWM_SMTP_HOST` | Your authenticated SMTP provider's host. |
 | `NWM_SMTP_PORT` | `587`; the current backend connects with SMTP and STARTTLS. |
 | `NWM_SMTP_USERNAME` | SMTP account username. |
 | `NWM_SMTP_PASSWORD` | SMTP password or provider app password. |
 | `NWM_SMTP_SENDER` | Authorized sender address; defaults to the SMTP username when blank. |
 
-Compose reads the public port and database path from the root `.env`; these
-settings are not duplicated as fixed values in the Dockerfiles or Compose file. Clear
-exported `NWM_*` shell variables when relying on `.env`, especially
-`NWM_FRONTEND_PORT` and `NWM_DATABASE_PATH`, because shell values take
-precedence during Compose interpolation. Do not pass a different environment
-file when using these instructions.
+Compose reads the public port and SMTP settings from the root `.env`. Clear
+exported `NWM_*` shell variables when relying on `.env`, because shell values
+take precedence. Do not pass a different environment file with these instructions.
 
 For a native backend run outside Docker, follow the
-[backend development instructions](backend/README.md#run-locally): edit the
-same root `.env` to use `backend/nwm.sqlite3`, install the requirements, and
-start Uvicorn with `--env-file .env`. Change the path back to
-`/app/data/nwm.sqlite3` before starting Docker. This preserves the separate
-existing native database and Docker volume without moving either one.
+[backend development instructions](backend/README.md#run-locally), install the
+requirements, and start Uvicorn with `--env-file .env`.
 
-Notifications remain disabled unless `NWM_NOTIFICATIONS_ENABLED=true`. Use an authenticated SMTP service that supports STARTTLS on port 587. The
+Use an authenticated SMTP service that supports STARTTLS on port 587. The
 current implementation does not use implicit TLS on port 465. Azure restricts
 outbound port 25 for many subscriptions; authenticated SMTP on 587 is the
 [documented Azure approach](https://learn.microsoft.com/en-us/troubleshoot/azure/virtual-network/troubleshoot-outbound-smtp-connectivity).
@@ -195,7 +163,7 @@ sudo docker compose exec frontend nginx -t
 curl --fail --silent --show-error http://127.0.0.1/api/health
 curl --fail --silent --show-error --output /dev/null --write-out '%{http_code}\n' http://127.0.0.1/
 curl --fail --silent --show-error --output /dev/null --write-out '%{http_code}\n' http://127.0.0.1/portfolio-preview
-for path in /.env /.git/config /data/nwm.sqlite3; do
+for path in /.env /.git/config; do
   curl --silent --show-error --output /dev/null --write-out '%{http_code}\n' "http://127.0.0.1$path"
 done
 sudo docker compose logs --tail=100 backend frontend
@@ -204,9 +172,8 @@ sudo docker compose logs --tail=100 backend frontend
 Expect the same health, `200`, and `404` results as the local checks. Open
 `http://YOUR_VM_PUBLIC_IP/` from another computer, then open
 `http://YOUR_VM_PUBLIC_IP/api/health`. Submit a sample inquiry from the UI
-and confirm it saves; confirm email arrives only if SMTP is configured and
-`NWM_NOTIFICATIONS_ENABLED=true`. SMTP
-failure or omitted credentials do not prevent the saved SQLite submission.
+and confirm that the recipient receives it. Missing credentials or SMTP
+delivery failure returns `503`, and the frontend displays an error.
 
 Both containers restart automatically with Docker after a VM reboot unless
 you explicitly stop them. The backend health check gates Nginx startup.
@@ -236,41 +203,5 @@ the new settings; a plain container restart does not update its environment.
 If only restarting the running stack, use `sudo docker compose restart`.
 To stop and remove its containers, use `sudo docker compose down`.
 
-The named volume survives rebuilds, restarts, and ordinary `down`. **Do not
-use `docker compose down -v` or delete/prune the data volume.** Keep the same
-directory name and Compose project name: switching projects creates a
-different volume. The local `backend/nwm.sqlite3` database is not bundled
-into the image or automatically migrated to Azure. A first deployment
-starts with an empty database; migrating existing demo data is a separate,
-optional backup-and-restore step.
-
-## 6. Back up SQLite
-
-Run from the VM project root while the backend is running. SQLite's backup
-API creates a consistent snapshot, including committed WAL data:
-
-```bash
-umask 077
-mkdir -p "$HOME/nwm-backups"
-chmod 700 "$HOME/nwm-backups"
-nwm_backup_name="nwm-$(date -u +%Y%m%dT%H%M%SZ).sqlite3"
-sudo docker compose exec -T backend python - <<'PY'
-import sqlite3
-
-source = sqlite3.connect('file:/app/data/nwm.sqlite3?mode=ro', uri=True)
-target = sqlite3.connect('/tmp/nwm-backup.sqlite3')
-try:
-    source.backup(target)
-finally:
-    target.close()
-    source.close()
-PY
-sudo docker compose cp backend:/tmp/nwm-backup.sqlite3 "$HOME/nwm-backups/$nwm_backup_name"
-sudo chown "$(id -u):$(id -g)" "$HOME/nwm-backups/$nwm_backup_name"
-chmod 600 "$HOME/nwm-backups/$nwm_backup_name"
-sudo docker compose exec -T backend python -c "from pathlib import Path; Path('/tmp/nwm-backup.sqlite3').unlink()"
-```
-
-Copy snapshots to private storage outside the VM so loss of the VM's disk
-does not lose the database. Do not copy only a live `.sqlite3` file while
-WAL writes are active. Keep backups outside the repository and web root.
+There is no submission database or persistent data volume to back up. Keep the
+private `.env` and SMTP credentials in an approved secrets-management system.

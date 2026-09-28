@@ -1,161 +1,47 @@
 # North Weave Mills API
 
+The backend validates website form submissions and delivers them directly by
+SMTP. Submissions are not stored in a database or written to disk.
+
 ## Run locally
 
-Use the same private root `.env` for native development and Docker. Before a
-native run, set `NWM_DATABASE_PATH` in that file to `backend/nwm.sqlite3` to
-keep using your existing local database. Configure the other settings using
-the [environment variable table](../DEPLOYMENT.md#3-copy-the-application-and-configure-its-private-environment).
-Clear any exported `NWM_*` shell variables when relying on `.env`, because
-existing process environment values take precedence.
-
-From the project root, with your Python environment activated:
+Configure the SMTP settings in the private root `.env`, then run from the
+project root:
 
 ```powershell
 python -m pip install -r requirements.txt
 python -m uvicorn backend.app.main:app --env-file .env --reload --port 8000
 ```
 
-Installing the requirements includes the environment-file loader through
-`uvicorn[standard]`. Uvicorn loads `.env` before importing the application, so
-SMTP, admin authentication, and CORS use the same settings as Docker.
-Before returning to Docker, change `NWM_DATABASE_PATH` in the same `.env`
-back to `/app/data/nwm.sqlite3`. Neither startup command migrates or deletes
-your existing database.
+Required email settings:
 
-The backend is organized by responsibility:
+- `NWM_NOTIFICATION_EMAIL` — address that receives both forms
+- `NWM_SMTP_HOST` — SMTP server, such as `smtp.gmail.com`
+- `NWM_SMTP_PORT` — STARTTLS port, normally `587`
+- `NWM_SMTP_USERNAME` — SMTP login
+- `NWM_SMTP_PASSWORD` — SMTP password or provider app password
+- `NWM_SMTP_SENDER` — optional From address; defaults to the SMTP username
 
-- `app/main.py` — creates the FastAPI application and includes routes
-- `app/database.py` — SQLite connection and initialization
-- `app/schemas.py` — request and response validation models
-- `app/routes/health.py` — health endpoint
-- `app/routes/inquiries.py` — inquiry endpoints
-- `app/routes/briefs.py` — detailed project brief endpoint
-- `app/notifications.py` — SMTP email notifications
-
-SQLite connections are short-lived and always closed after each request.
-They use WAL journaling and a 30-second busy timeout so concurrent reads and
-writes wait briefly instead of failing immediately with a database-locked
-error. Keep database writes inside the connection context and complete them
-before doing external work such as email notifications.
+The email entered by the visitor is assigned to the message's `Reply-To`
+header. The API returns success only after the SMTP server accepts the email.
+If configuration or delivery fails, the API returns `503` and the frontend
+shows the submission error.
 
 ## Endpoints
 
 - `GET /api/health` — service health check
-- `POST /api/inquiries` — save an inquiry
-- `GET /api/inquiries` — list saved inquiries; requires the `X-Admin-Token` header
+- `POST /api/inquiries` — email the short inquiry form
+- `POST /api/project-briefs` — email the detailed project brief
 
 Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 
 ## Docker
-
-For the complete local checks and Azure Ubuntu VM deployment commands, see
-[the deployment guide](../DEPLOYMENT.md).
-
-For Docker, set `NWM_FRONTEND_PORT` to `80` and `NWM_DATABASE_PATH` to
-`/app/data/nwm.sqlite3` in the root `.env`. Build and run both services from
-the project root:
 
 ```powershell
 docker compose config --quiet
 docker compose up --build --wait
 ```
 
-Compose builds `nginx/Dockerfile` with the project root as its context. Its
-build stage runs `npm ci` and `npm run build`; Nginx serves the resulting
-static files. The backend uses the root `requirements.txt` and runs
-`uvicorn backend.app.main:app --host 0.0.0.0 --port 8000`.
-
-The Nginx configuration in the root-level `nginx/` folder proxies `/api/*`
-requests to the backend service at `http://backend:8000`. This internal service name is the
-relationship between the frontend and backend containers; browser requests
-continue to use relative `/api/*` URLs.
-
-The frontend source is organized under the project-level `frontend/` directory.
-Run frontend commands from that directory:
-
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-## Run frontend and backend together
-
-From the project root:
-
-```powershell
-docker compose up --build
-```
-
-Then open:
-
-- Frontend: `http://127.0.0.1`
-- Backend API docs are internal and are not published by Compose.
-
-Stop both containers with:
-
-```powershell
-docker compose down
-```
-
-The SQLite database persists in the `nwm-data` Docker volume.
-
-The root `.env` is the project's only environment file. Provide that private
-file on each host before starting Compose; do not commit it. On a new clone,
-create `.env` and fill in the settings listed in the deployment guide, or
-securely transfer your private file. Docker Compose reads `NWM_FRONTEND_PORT`
-and `NWM_DATABASE_PATH` from `.env` and passes the file's runtime settings only
-to the backend container. The configured public port is `80`. Keep the Docker
-database path at `/app/data/nwm.sqlite3` so the database and its sidecar files
-reside in the persistent `nwm-data` volume. Clear exported `NWM_*` shell
-variables when relying on this file; shell values can override Compose's
-interpolation of the public port and database path.
-
-This demo is served over HTTP on port 80. Use sample data until HTTPS is
-configured. Keep port 8000 private. Browser requests use the same origin, so
-`NWM_CORS_ORIGINS` may be blank. Configure a long random `NWM_ADMIN_TOKEN` in
-the private `.env` file and use it as `X-Admin-Token` only from a trusted
-administrative client over an SSH tunnel or HTTPS when reading inquiries.
-
-Back up the `nwm-data` Docker volume regularly. The application does not
-provide automatic backups. Do not run `docker compose down -v`, which removes
-the database volume. The local `backend/nwm.sqlite3` is not copied into the
-image; a new VM starts with an empty database unless you restore a backup.
-
-## Email notifications
-
-New inquiries and project briefs can be sent to the address configured in the
-private root `.env` file when SMTP credentials are configured and notifications
-are explicitly enabled. Set
-`NWM_NOTIFICATIONS_ENABLED=true` only when notifications are ready to be
-activated; the default is `false`, so database submissions work without SMTP.
-Set
-`NWM_NOTIFICATION_EMAIL` and the `NWM_SMTP_*` values there using the
-[environment variable table](../DEPLOYMENT.md#3-copy-the-application-and-configure-its-private-environment).
-For Gmail, use an app password rather than your normal account password.
-
-Keep `.env` private and never commit it. Docker Compose loads `.env` directly
-into the backend container; the frontend container does not receive SMTP
-settings.
-
-Fill in `NWM_SMTP_PASSWORD` only in the private root `.env`.
-Git and Docker exclude environment files, private keys,
-and credential files, including copies in subdirectories. Vite does not load
-environment files or expose prefixed environment variables to browser code.
-Nginx rejects requests for hidden files and common credential/database files.
-
-Do not put passwords, API keys, private certificates, or service-account files
-in frontend source or `VITE_*` variables. Anything exposed to
-the Vite frontend can be downloaded by website visitors.
-
-Then restart the stack:
-
-```powershell
-docker compose up --build -d
-```
-
-The recipient is controlled by `NWM_NOTIFICATION_EMAIL` in the private `.env`
-file. If notifications are disabled or SMTP credentials are not configured,
-submissions are still saved to SQLite and the backend logs that email delivery
-was skipped.
+The frontend proxies `/api/*` requests to the backend container. SMTP secrets
+remain server-side and must never be placed in frontend source or `VITE_*`
+variables.

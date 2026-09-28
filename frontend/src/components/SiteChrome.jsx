@@ -12,8 +12,11 @@ export class ScrollEffects extends React.Component {
     this.handleScroll();
     window.addEventListener("scroll", this.handleScroll, { passive: true });
     this.observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => entry.target.classList.toggle("is-visible", entry.isIntersecting)),
-      { threshold: 0.12 }
+      (entries) => entries.forEach((entry) => {
+        const requiredVisibility = entry.target.matches(".booking") ? 0.42 : 0.16;
+        entry.target.classList.toggle("is-visible", entry.isIntersecting && entry.intersectionRatio >= requiredVisibility);
+      }),
+      { threshold: [0.16, 0.42], rootMargin: "0px 0px -8% 0px" }
     );
     document.querySelectorAll("main > section:not(.hero)").forEach((section) => {
       section.classList.add("scroll-reveal");
@@ -125,12 +128,28 @@ export function useActiveSection(ids) {
 export function Header({ menuOpen, onToggle }) {
   const { copy } = useLanguage();
   const activeId = useActiveSection(React.useMemo(() => NAV_LINKS.map((link) => link.id), []));
+  const [logoRevealKey, setLogoRevealKey] = React.useState(0);
+
+  React.useEffect(() => {
+    const replayLogo = () => {
+      if (document.visibilityState === "visible") setLogoRevealKey(value => value + 1);
+    };
+    const replayRestoredPage = (event) => {
+      if (event.persisted) setLogoRevealKey(value => value + 1);
+    };
+    document.addEventListener("visibilitychange", replayLogo);
+    window.addEventListener("pageshow", replayRestoredPage);
+    return () => {
+      document.removeEventListener("visibilitychange", replayLogo);
+      window.removeEventListener("pageshow", replayRestoredPage);
+    };
+  }, []);
 
   return (
     <>
     <header className="site-header">
       <a className="brand" href="#top" aria-label="North Weave Mills home">
-        <img className="brand-logo header-brand-logo" src="/assets/nwm-mark-transparent.png" alt="North Weave Mills" />
+        <span className="header-logo-reveal" key={logoRevealKey}><img className="brand-logo header-brand-logo" src="/assets/nwm-mark-transparent.png" alt="North Weave Mills" /></span>
       </a>
       <nav className={`desktop-nav ${menuOpen ? "hidden" : ""}`}>
         {NAV_LINKS.map(({ id, label }) => (

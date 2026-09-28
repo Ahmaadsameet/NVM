@@ -1,22 +1,23 @@
 .booking { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; scroll-margin-top: 76px; color: var(--paper); background: var(--charcoal); text-align: center; }
 .booking .eyebrow { color: #a7a7a2; }
-.booking h2 { font-size: clamp(44px, 7vw, 88px); }
-.book-title { display: flex; align-items: baseline; justify-content: center; gap: .22em; perspective: 800px; }
-.book-title-word { display: inline-block; transform: translateZ(0); transform-origin: center; backface-visibility: hidden; will-change: transform; animation: bookWordRoll 3.2s cubic-bezier(.45, 0, .2, 1) calc(var(--word-index) * .3s) infinite; }
+.booking h2 { font-size: clamp(50px, 8vw, 104px); }
+.book-title { display: flex; align-items: baseline; justify-content: center; gap: .22em; }
+.book-title-word { display: inline-block; opacity: 0; transform: translate3d(0, 7px, 0); will-change: opacity, transform; }
+.booking.scroll-reveal.is-visible .book-title-word { animation: bookWordDissolve 1.2s cubic-bezier(.22, 1, .36, 1) calc(var(--word-index) * .14s) both; }
 .booking > p { max-width: 470px; margin: 16px auto 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
 
 .booking form { max-width: 680px; margin: 34px auto 0; text-align: left; }
-.booking-options { max-width: 1000px; margin: 44px auto 0; text-align: left; }
+.booking-options { width: min(1080px, 100%); max-width: 1080px; margin: 36px auto 0; text-align: left; }
 .booking.has-form > .eyebrow,
 .booking.has-form > .book-title,
 .booking.has-form > p { display: none; }
-.booking.has-form .booking-options { width: min(1000px, 100%); margin-top: 0; }
+.booking.has-form .booking-options { width: min(1080px, 100%); margin-top: 0; }
 .booking-options.has-selection { grid-template-columns: minmax(0, 1fr); }
-.booking-option { display: flex; flex-direction: column; align-items: stretch; width: 100%; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.booking-option { display: flex; flex-direction: column; align-items: stretch; width: 100%; min-height: 240px; background: transparent; font: inherit; text-align: left; cursor: pointer; }
 .booking-option.bright { background: var(--paper); }
 .booking-option h3 { margin-top: 24px; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.12; }
 .booking-option-action { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 24px; font: 700 10px "IBM Plex Mono", monospace; letter-spacing: .12em; }
-.booking-form-card { grid-column: 1 / -1; overflow: visible; background: #141413; animation: bookingCardExpand .3s cubic-bezier(.2, .7, .2, 1) both; }
+.booking-form-card { grid-column: 1 / -1; overflow: visible; padding: clamp(26px, 3vw, 38px); background: #141413; animation: bookingCardExpand .4s cubic-bezier(.22, 1, .36, 1) both; }
 .booking-form-card:hover { transform: none; box-shadow: none; }
 .booking-form-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding-bottom: 22px; border-bottom: 1px solid #373734; }
 .booking-form-card-heading > div { min-width: 0; }
@@ -41,18 +42,17 @@
 .brief-form .radio-label { display: inline-flex; align-items: center; gap: 8px; color: #e1e1dd; font: 13px Archivo, sans-serif; letter-spacing: 0; }
 .brief-form .radio-label input { width: auto; margin: 0; accent-color: #fafaf9; }
 
-@keyframes bookWordRoll {
-  0%, 18% { transform: translateZ(0) rotateX(0); }
-  36% { transform: translateZ(0) rotateX(105deg); }
-  54% { transform: translateZ(0) rotateX(255deg); }
-  72%, 100% { transform: translateZ(0) rotateX(360deg); }
+@keyframes bookWordDissolve {
+  from { opacity: 0; transform: translate3d(0, 7px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes bookingCardExpand {
-  from { opacity: .9; transform: translateY(8px) scale(.99); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translate3d(0, 7px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .book-title-word { transform: none; animation: none; }
+  .book-title-word,
+  .booking.scroll-reveal.is-visible .book-title-word { opacity: 1; transform: none; animation: none; }
 }
