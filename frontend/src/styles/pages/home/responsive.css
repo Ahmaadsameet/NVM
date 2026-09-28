@@ -43,6 +43,39 @@
   .booking-option { min-height: 220px; }
 }
 
+/* Content-led desktop sections avoid empty full-screen panels on scaled displays. */
+@media (min-width: 1101px) {
+  .app { --desktop-gutter: max(48px, calc((100vw - 1440px) / 2)); }
+  .capabilities.section-pad,
+  .selected-work.section-pad,
+  .process.section-pad,
+  .quality.section-pad,
+  .difference.section-pad,
+  .booking.section-pad {
+    max-width: none;
+    padding: 48px var(--desktop-gutter);
+  }
+  .capabilities,
+  .selected-work,
+  .booking { min-height: 0; justify-content: flex-start; }
+  .intro.section-pad { padding-top: 56px; padding-bottom: 28px; }
+  .intro .stats { margin-top: 48px; }
+  .capability-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 30px; }
+  .capabilities .image-wrap { max-height: none; aspect-ratio: 8 / 5; }
+  .work-grid { margin-top: 30px; padding-bottom: 20px; }
+  .quality { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: start; }
+  .quality-panel { align-self: start; }
+  .difference .comparison { margin-top: 30px; }
+  .booking.section-pad { padding-top: 64px; padding-bottom: 56px; }
+  .booking .booking-options { width: 100%; max-width: none; margin-top: 30px; }
+  .booking.has-form .booking-options { width: min(1080px, 100%); margin-top: 0; }
+  .booking-option { min-height: 248px; }
+  .hero { align-items: center; }
+  .hero-content { width: 100%; padding: 88px var(--desktop-gutter) 112px; }
+  .hero h1 { max-width: 100%; width: 100%; font-size: clamp(48px, 4.4vw, 72px); text-wrap: wrap; }
+  .hero-title-line { width: max-content; max-width: 100%; }
+}
+
 @media (min-width: 761px) and (max-width: 1100px) {
   .site-header { width: 100%; }
   .desktop-nav { gap: 7px; }
@@ -60,14 +93,28 @@
 }
 
 @media (max-width: 760px) {
-  html, body, .app { max-width: 100%; overflow-x: hidden; }
+  html, body { max-width: 100%; background-color: #151514; overflow-x: hidden; }
+  .app { max-width: 100%; overflow-x: hidden; }
   @supports (overflow: clip) {
     html, body, .app { overflow-x: clip; }
   }
   .desktop-nav { display: none; }
   .menu-button { display: block; flex: 0 0 44px; }
-  .site-header { inset: 0 0 auto; width: 100%; margin: 0; padding: calc(14px + env(safe-area-inset-top)) max(clamp(20px, 5vw, 38px), env(safe-area-inset-right)) 14px max(clamp(20px, 5vw, 38px), env(safe-area-inset-left)); border: 0; border-radius: 0; }
-  .site-header::before { inset: 0 0 -20px; opacity: clamp(.18, var(--header-effect-progress, 0), 1); background: rgba(14, 14, 13, .06); backdrop-filter: blur(10px) saturate(108%); -webkit-backdrop-filter: blur(10px) saturate(108%); mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, .88) 58%, rgba(0, 0, 0, .3) 82%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, .88) 58%, rgba(0, 0, 0, .3) 82%, transparent 100%); }
+  .site-header { inset: 0 0 auto; width: 100%; min-height: calc(60px + env(safe-area-inset-top)); margin: 0; padding: calc(14px + env(safe-area-inset-top)) max(clamp(20px, 5vw, 38px), env(safe-area-inset-right)) 14px max(clamp(20px, 5vw, 38px), env(safe-area-inset-left)); border: 0; border-radius: 0; }
+  .site-header::before {
+    top: calc(-1 * env(safe-area-inset-top));
+    right: 0;
+    bottom: -40px;
+    left: 0;
+    opacity: 1;
+    background: rgba(14, 14, 13, .10);
+    backdrop-filter: blur(12px) saturate(110%);
+    -webkit-backdrop-filter: blur(12px) saturate(110%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 64px), rgba(0, 0, 0, .8) calc(100% - 48px), rgba(0, 0, 0, .4) calc(100% - 28px), rgba(0, 0, 0, .1) calc(100% - 12px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 calc(100% - 64px), rgba(0, 0, 0, .8) calc(100% - 48px), rgba(0, 0, 0, .4) calc(100% - 28px), rgba(0, 0, 0, .1) calc(100% - 12px), transparent 100%);
+  }
+  html.header-over-light .site-header::before { background: rgba(247, 247, 245, .22); }
+  html.header-over-booking .site-header::before { background: rgba(14, 14, 13, .22); }
   html.has-scrolled .site-header { padding-top: calc(10px + env(safe-area-inset-top)); padding-bottom: 10px; }
   .site-header .brand-logo { height: 29px; }
   .mobile-sticky-cta { position: fixed; right: auto; bottom: calc(14px + env(safe-area-inset-bottom)); left: 50%; z-index: 39; display: flex; align-items: center; justify-content: center; width: max-content; min-width: 136px; min-height: 42px; padding: 0 16px; color: #20201e; background: rgba(250, 250, 249, .72); border: 1px solid rgba(250, 250, 249, .3); border-radius: 999px; box-shadow: 0 7px 18px rgba(0, 0, 0, .18); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: 9px; font-weight: 700; letter-spacing: .12em; transform: translateX(-50%); transition: transform .25s ease, color .25s ease, background-color .25s ease; }
