@@ -11,22 +11,10 @@ export class ScrollEffects extends React.Component {
     this.headerSections = Array.from(document.querySelectorAll("main > section, main > .ticker"));
     this.handleScroll();
     window.addEventListener("scroll", this.handleScroll, { passive: true });
-    this.observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => {
-        const requiredVisibility = entry.target.matches(".booking") ? 0.42 : 0.16;
-        entry.target.classList.toggle("is-visible", entry.isIntersecting && entry.intersectionRatio >= requiredVisibility);
-      }),
-      { threshold: [0.16, 0.42], rootMargin: "0px 0px -8% 0px" }
-    );
-    document.querySelectorAll("main > section:not(.hero)").forEach((section) => {
-      section.classList.add("scroll-reveal");
-      this.observer.observe(section);
-    });
   }
 
   componentWillUnmount() {
     window.removeEventListener("scroll", this.handleScroll);
-    this.observer?.disconnect();
     document.documentElement.style.removeProperty("--header-effect-progress");
   }
 
@@ -59,6 +47,7 @@ export class ScrollEffects extends React.Component {
     });
     const lightCtaBackdrop = ctaSection && !ctaSection.matches(".hero, .difference, .closing, .booking");
     root.classList.toggle("mobile-cta-over-light", Boolean(lightCtaBackdrop));
+    root.classList.toggle("mobile-cta-over-hero", Boolean(ctaSection?.matches(".hero")));
   };
 
   render() {
@@ -174,7 +163,7 @@ export function MobileMenu({ open, onClose }) {
   return (
     <div className="mobile-menu">
       <div className="mobile-menu-top">
-        <span className="brand"><img className="brand-logo" src="/assets/nwm-logo-header.png" alt="North Weave Mills" /></span>
+        <span className="brand"><img className="brand-logo" src="/assets/nwm-mark-transparent.png" alt="North Weave Mills" /></span>
         <button onClick={onClose}>{copy.nav.close}</button>
       </div>
       <nav>
@@ -192,7 +181,7 @@ export function Hero() {
   const { copy } = useLanguage();
   return (
     <section className="hero" id="top">
-      <video className="hero-video" src="/assets/dashboard-video.mp4" autoPlay muted loop playsInline aria-label="Apparel production footage" />
+      <video className="hero-video" src="/assets/dashboard-video.mp4" autoPlay muted loop playsInline preload="auto" aria-label="Apparel production footage" />
       <div className="hero-overlay" />
       <div className="hero-content">
         <SectionLabel>{copy.hero.label}</SectionLabel>

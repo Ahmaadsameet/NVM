@@ -2,8 +2,7 @@
 .booking .eyebrow { color: #a7a7a2; }
 .booking h2 { font-size: clamp(50px, 8vw, 104px); }
 .book-title { display: flex; align-items: baseline; justify-content: center; gap: .22em; }
-.book-title-word { display: inline-block; opacity: 0; transform: translate3d(0, 7px, 0); will-change: opacity, transform; }
-.booking.scroll-reveal.is-visible .book-title-word { animation: bookWordDissolve 1.2s cubic-bezier(.22, 1, .36, 1) calc(var(--word-index) * .14s) both; }
+.book-title-word { display: inline-block; opacity: 1; transform: none; }
 .booking > p { max-width: 470px; margin: 16px auto 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
 
 .booking form { max-width: 680px; margin: 34px auto 0; text-align: left; }
@@ -53,6 +52,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .book-title-word,
-  .booking.scroll-reveal.is-visible .book-title-word { opacity: 1; transform: none; animation: none; }
+  .book-title-word { opacity: 1; transform: none; animation: none; }
 }

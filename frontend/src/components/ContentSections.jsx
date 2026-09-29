@@ -36,7 +36,7 @@ export function Ticker() {
 export function IntroSection() {
   const { copy } = useLanguage();
   const values = ["01", "02", "06–08"];
-  return <section className="intro section-pad" id="stats"><img className="intro-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" loading="lazy" decoding="async" /><p className="statement">{copy.intro.before} <em>{copy.intro.emphasis}</em></p><div className="stats">{copy.intro.stats.map((label, index) => <div key={label}><AnimatedStatValue value={values[index]} /><span>{label}</span></div>)}</div></section>;
+  return <section className="intro section-pad" id="stats"><img className="intro-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" decoding="async" /><p className="statement">{copy.intro.before} <em>{copy.intro.emphasis}</em></p><div className="stats">{copy.intro.stats.map((label, index) => <div key={label}><AnimatedStatValue value={values[index]} /><span>{label}</span></div>)}</div></section>;
 }
 
 function AnimatedStatValue({ value }) {
@@ -150,7 +150,7 @@ export function CapabilitiesSection() {
   return <section className="capabilities section-pad" id="make">
     <div className="section-heading"><div><SectionLabel>{capabilities.label}</SectionLabel><h2>{capabilities.titleBefore}<br /><em>{capabilities.titleEmphasis}</em> {capabilities.titleAfter}</h2></div><p>{capabilities.description}</p></div>
     <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className="capability-card" tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} onClick={() => openGallery(name, imageKey)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openGallery(name, imageKey); } }} key={imageKey}>
-      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} loading="lazy" decoding="async" /><span className="capability-explore">EXPLORE MORE</span></div>
+      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} decoding="async" /><span className="capability-explore">EXPLORE MORE</span></div>
       <div className="card-meta"><h3>{name}</h3></div><p>{text}</p>
     </article>)}</div>
     {activeGallery && createPortal(<div className="capability-dialog-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setActiveGallery(null); }}>
@@ -162,7 +162,7 @@ export function CapabilitiesSection() {
         <div className="capability-gallery-browser">
           <nav className="capability-gallery-tabs" aria-label={`${activeGallery.name} products`}>
             {capabilityGalleries[activeGallery.imageKey].map((image, photoIndex) => <button className={`capability-product-tab ${activePhotoIndex === photoIndex ? "is-active" : ""}`} type="button" aria-pressed={activePhotoIndex === photoIndex} aria-label={`${activeGallery.name} product ${photoIndex + 1}`} onClick={() => setActivePhotoIndex(photoIndex)} key={image || `${activeGallery.imageKey}-${photoIndex}`}>
-              {image ? <img src={image} alt="" loading="lazy" decoding="async" /> : <span className="capability-product-tab-placeholder">{activeGallery.name}</span>}
+              {image ? <img src={image} alt="" decoding="async" /> : <span className="capability-product-tab-placeholder">{activeGallery.name}</span>}
               <span className="capability-product-tab-label">PRODUCT {String(photoIndex + 1).padStart(2, "0")}</span>
             </button>)}
           </nav>
@@ -181,7 +181,7 @@ export function CapabilitiesSection() {
 export function ProcessSection() {
   const { copy } = useLanguage();
   const { process } = copy;
-  return <section className="process section-pad" id="process"><div className="section-topline"><SectionLabel>{process.label}</SectionLabel><SectionLabel>{process.sideLabel}</SectionLabel></div><h2>{process.before} <em>{process.emphasis}</em> {process.after}</h2><div className="process-list">{process.steps.map(([number, title, text]) => <div className="process-row" key={number}><span className="step-number">{number}</span><div><h3>{title}</h3><p>{text}</p></div></div>)}</div></section>;
+  return <section className="process section-pad" id="process"><div className="section-topline"><SectionLabel>{process.label}</SectionLabel><SectionLabel>{process.sideLabel}</SectionLabel></div><h2>{process.before} <em>{process.emphasis}</em> {process.after}</h2><div className="process-list">{process.steps.map(([number, title, text]) => <div className="process-row" key={number} tabIndex={0}><span className="step-number">{number}</span><div><h3>{title}</h3><p>{text}</p></div></div>)}</div></section>;
 }
 
 export function QualitySection() {
@@ -207,29 +207,7 @@ export function WorkSection() {
     "/assets/card5.mp4"
   ];
 
-  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <ViewportVideo src={workVideos[index]} label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} loading="lazy" decoding="async" />}</figure>)}</div></section>;
-}
-
-function ViewportVideo({ src, label }) {
-  const videoRef = React.useRef(null);
-  const [shouldLoad, setShouldLoad] = React.useState(false);
-
-  React.useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return undefined;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setShouldLoad(true);
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    }, { rootMargin: "400px 0px", threshold: .01 });
-    observer.observe(video);
-    return () => observer.disconnect();
-  }, []);
-
-  return <video ref={videoRef} src={shouldLoad ? src : undefined} autoPlay={shouldLoad} muted loop playsInline preload="none" aria-label={label} />;
+  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} autoPlay muted loop playsInline preload="auto" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} decoding="async" />}</figure>)}</div></section>;
 }
 
 export function ClosingSection() {
