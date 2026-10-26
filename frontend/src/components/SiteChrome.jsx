@@ -82,10 +82,10 @@ function LanguagePicker({ mobile = false }) {
     };
   }, []);
 
-  return <div className={`language-picker ${mobile ? "mobile-language-picker" : ""}`} ref={pickerRef}>
+  return <div className={`language-picker ${mobile ? "mobile-language-picker" : "desktop-language-picker"}`} ref={pickerRef}>
     <button className="language-trigger" type="button" aria-label="Choose language" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(value => !value)}>
       <Globe2 size={15} aria-hidden="true" />
-      <span>{current.short}</span>
+      <span>{mobile ? current.short : "LANGUAGE"}</span>
       <ChevronDown className={open ? "is-open" : ""} size={13} aria-hidden="true" />
     </button>
     {open && <div className="language-menu" role="listbox" aria-label="Language">
@@ -146,11 +146,15 @@ export function Header({ menuOpen, onToggle }) {
             {copy.nav[label]}
           </a>
         ))}
+        <LanguagePicker />
         <a className="outline-button" href="#book">{copy.nav.book}</a>
       </nav>
-      <button className="menu-button" onClick={onToggle} aria-label={menuOpen ? "Close menu" : "Open menu"}>
-        {menuOpen ? <X size={22} /> : <Menu size={24} />}
-      </button>
+      <div className="mobile-nav-actions">
+        <LanguagePicker mobile />
+        <button className="menu-button" onClick={onToggle} aria-label={menuOpen ? "Close menu" : "Open menu"}>
+          {menuOpen ? <X size={22} /> : <Menu size={24} />}
+        </button>
+      </div>
     </header>
     <a className="mobile-sticky-cta" href="#book">{copy.nav.book}</a>
     </>
@@ -161,19 +165,20 @@ export function MobileMenu({ open, onClose }) {
   const { copy } = useLanguage();
   if (!open) return null;
   return (
-    <div className="mobile-menu">
-      <div className="mobile-menu-top">
-        <span className="brand"><img className="brand-logo" src="/assets/nwm-mark-transparent.png" alt="North Weave Mills" /></span>
-        <button onClick={onClose}>{copy.nav.close}</button>
+    <>
+      <div className="mobile-menu">
+        <div className="mobile-menu-top">
+          <span className="brand"><img className="brand-logo" src="/assets/nwm-mark-transparent.png" alt="North Weave Mills" /></span>
+          <button onClick={onClose}>{copy.nav.close}</button>
+        </div>
+        <nav>
+          {NAV_LINKS.map(({ id, label }) => (
+            <a key={id} href={`#${id}`} onClick={onClose}>{copy.nav[label]}</a>
+          ))}
+        </nav>
+        <a className="solid-button mobile-cta" href="#book" onClick={onClose}>{copy.nav.book}</a>
       </div>
-      <nav>
-        {NAV_LINKS.map(({ id, label }) => (
-          <a key={id} href={`#${id}`} onClick={onClose}>{copy.nav[label]}</a>
-        ))}
-      </nav>
-      <LanguagePicker mobile />
-      <a className="solid-button mobile-cta" href="#book" onClick={onClose}>{copy.nav.book}</a>
-    </div>
+    </>
   );
 }
 
@@ -181,7 +186,7 @@ export function Hero() {
   const { copy } = useLanguage();
   return (
     <section className="hero" id="top">
-      <video className="hero-video" src="/assets/dashboard-video.mp4" autoPlay muted loop playsInline preload="auto" aria-label="Apparel production footage" />
+      <video className="hero-video" src="/assets/dashboard-video.mp4" autoPlay muted loop playsInline preload="metadata" aria-label="Apparel production footage" />
       <div className="hero-overlay" />
       <div className="hero-content">
         <SectionLabel>{copy.hero.label}</SectionLabel>

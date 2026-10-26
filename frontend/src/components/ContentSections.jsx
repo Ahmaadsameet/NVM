@@ -207,7 +207,23 @@ export function WorkSection() {
     "/assets/card5.mp4"
   ];
 
-  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} autoPlay muted loop playsInline preload="auto" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} decoding="async" />}</figure>)}</div></section>;
+  React.useEffect(() => {
+    const videos = document.querySelectorAll(".work-grid video");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(({ isIntersecting, target }) => {
+        if (isIntersecting) {
+          target.preload = "auto";
+          target.play().catch(() => {});
+        } else {
+          target.pause();
+        }
+      });
+    }, { rootMargin: "200px" });
+    videos.forEach((video) => observer.observe(video));
+    return () => observer.disconnect();
+  }, []);
+
+  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} muted loop playsInline preload="none" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} decoding="async" />}</figure>)}</div></section>;
 }
 
 export function ClosingSection() {

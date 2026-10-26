@@ -121,9 +121,16 @@
   .mobile-menu nav { display: flex; flex-direction: column; margin-top: 65px; }
   .mobile-menu nav a { position: relative; display: flex; align-items: center; justify-content: center; min-height: 64px; padding: 16px 42px; color: #c2c2be; border-bottom: 1px solid #2d2d2b; font-size: 22px; font-weight: 400; line-height: 1.25; letter-spacing: 0; text-align: center; transition: color .25s ease, transform .25s ease; }
   .mobile-menu nav a:hover, .mobile-menu nav a:focus-visible { color: #fafaf8; transform: translateY(-2px); outline: 0; }
-  .mobile-language-picker { align-self: center; width: max-content; margin-top: auto; }
-  .mobile-language-picker .language-trigger { justify-content: center; width: auto; min-width: 136px; min-height: 42px; padding: 0 16px; color: #fafaf9; background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .42); border-radius: 999px; box-shadow: 0 8px 24px rgba(0, 0, 0, .16); backdrop-filter: blur(10px) saturate(115%); -webkit-backdrop-filter: blur(10px) saturate(115%); font-size: 9px; }
-  .mobile-language-picker .language-menu { top: auto; right: 0; bottom: calc(100% + 10px); left: 0; }
+  .mobile-nav-actions { display: flex; align-items: center; gap: 8px; }
+  .mobile-language-picker { width: max-content; }
+  .mobile-language-picker .language-trigger,
+  .mobile-language-picker .language-trigger:hover,
+  .mobile-language-picker .language-trigger:focus-visible,
+  .mobile-language-picker:focus-within .language-trigger { justify-content: center; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; color: #fafaf9; background: transparent; border: 0; border-radius: 50%; box-shadow: none; transform: none; }
+  .mobile-language-picker .language-trigger span,
+  .mobile-language-picker .language-trigger svg:last-child { display: none; }
+  html.header-over-light .site-header .mobile-language-picker .language-trigger { color: #20201e; }
+  .mobile-language-picker .language-menu { top: calc(100% + 10px); right: auto; bottom: auto; left: 0; }
   .mobile-cta { align-self: center; width: auto; min-width: 136px; min-height: 42px; margin: 14px auto 0; padding: 0 16px; color: #fafaf9; background: rgba(255, 255, 255, .08); border-color: rgba(255, 255, 255, .42); box-shadow: 0 8px 24px rgba(0, 0, 0, .16); backdrop-filter: blur(10px) saturate(115%); -webkit-backdrop-filter: blur(10px) saturate(115%); font-size: 9px; }
   .hero { align-items: center; width: 100%; height: calc(100dvh + env(safe-area-inset-bottom)); min-height: calc(100dvh + env(safe-area-inset-bottom)); }
   .hero > img, .hero-video { inset: 0; width: 100%; max-width: none; height: 100%; object-fit: cover; object-position: center; }

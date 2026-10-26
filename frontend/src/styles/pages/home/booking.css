@@ -34,6 +34,9 @@
 .booking form button:disabled { cursor: wait; opacity: .6; }
 .success { padding: 60px 20px; color: #e1e1dd; border: 1px solid #30302e; text-align: center; font-size: 18px; }
 .form-error { margin-top: 20px; color: #ff9d91; font-size: 13px; }
+.booking .form-notice { display: block; margin-top: 24px; padding: 0; border: 0; color: #c2c2be; font-size: 12px; line-height: 1.6; }
+.form-notice a { text-decoration: underline; overflow-wrap: anywhere; }
+.form-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .brief-form { margin-top: 30px; }
 .brief-form fieldset { display: flex; gap: 24px; margin: 28px 0 0; padding: 0 0 22px; border: 0; border-bottom: 1px solid #3a3a38; }

@@ -34,9 +34,19 @@ export const capabilityGalleries = {
     "/assets/capabilities/fashion/red-white-plaid-hooded-shirt.webp",
     "/assets/capabilities/fashion/green-buffalo-plaid-hooded-shirt.webp"
   ],
+  knit: [
+    "/assets/capabilities/knitwear/images.jpg",
+    "/assets/capabilities/knitwear/images (1).jpg",
+    "/assets/capabilities/knitwear/images (2).jpg"
+  ],
+  sport: [
+    "/assets/capabilities/sportswear/images (3).jpg",
+    "/assets/capabilities/sportswear/images (4).jpg",
+    "/assets/capabilities/sportswear/images (5).jpg"
+  ],
   ...Object.fromEntries(
     Object.entries(capabilityImages)
-      .filter(([key]) => !["denim", "biker", "leather", "fashion"].includes(key))
+      .filter(([key]) => !["denim", "biker", "leather", "fashion", "knit", "sport"].includes(key))
       .map(([key, image]) => [key, [image, null, null, null]])
   )
 };

@@ -2,8 +2,9 @@ import React from "react";
 import { ArrowUpRight, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
+import { FORM_ACTION, FORM_RECIPIENT } from "../data/contact";
 
-export function BookingSection({ state, onSubmit, onBriefSubmit }) {
+export function BookingSection() {
   const { copy } = useLanguage();
   const t = copy.booking;
   const [mode, setMode] = React.useState(null);
@@ -39,18 +40,38 @@ export function BookingSection({ state, onSubmit, onBriefSubmit }) {
             </div>
             <button className="booking-close" type="button" aria-label={copy.nav.close} onClick={() => setMode(null)}><X size={13} aria-hidden="true" /><span>{copy.nav.close}</span></button>
           </div>
-          {mode === "inquiry" ? state.submitted ? <div className="success">{t.thanks}</div> : <form id="inquiry-form" onSubmit={onSubmit}>
+          {mode === "inquiry" ? <form id="inquiry-form" action={FORM_ACTION} method="POST">
+            <FormSettings type="inquiry" />
             <div className="form-grid"><label>{t.name}<input name="name" required type="text" placeholder={t.namePlaceholder} /></label><label>{t.email}<input name="email" required type="email" placeholder="you@brand.com" /></label></div>
             <label>{t.message}<textarea name="message" required minLength="10" placeholder={t.messagePlaceholder} rows="4" /></label>
-            {state.submitError && <p className="form-error" role="alert">{state.submitError}</p>}
-            <button className="solid-button inquiry-submit" type="submit" disabled={state.submitting}>{state.submitting ? t.sending : t.sendInquiry} {!state.submitting && <ArrowUpRight size={16} />}</button>
-          </form> : <ProjectBrief state={state} onSubmit={onBriefSubmit} t={t} />}
+            <FormNotice />
+            <button className="solid-button inquiry-submit" type="submit">{t.sendInquiry} <ArrowUpRight size={16} /></button>
+          </form> : <ProjectBrief t={t} />}
         </div>
       </div>}
     </section>
   );
 }
 
-function ProjectBrief({ state, onSubmit, t }) {
-  return state.briefSubmitted ? <div className="success">{t.briefThanks}</div> : <form className="brief-form" onSubmit={onSubmit}><div className="form-grid"><label>{t.brand}<input name="brand_name" required type="text" placeholder={t.brandPlaceholder} /></label><label>{t.instagram}<input name="instagram" type="text" placeholder="@yourbrand" /></label></div><div className="form-grid"><label>{t.contactEmail}<input name="contact_email" required type="email" placeholder="you@brand.com" /></label><label>{t.total}<input name="total_pieces" required type="number" min="1" placeholder="e.g. 500" /></label></div><label>{t.product}<input name="product_type" required type="text" placeholder={t.productPlaceholder} /></label><div className="form-grid"><label>{t.colours}<input name="colours" required type="text" placeholder={t.coloursPlaceholder} /></label><label>{t.pieces}<input name="pieces_per_style" required type="text" placeholder={t.piecesPlaceholder} /></label></div><fieldset><legend>{t.techPacks}</legend><label className="radio-label"><input name="tech_packs_available" required type="radio" value="yes" /> {t.yes}</label><label className="radio-label"><input name="tech_packs_available" required type="radio" value="no" /> {t.no}</label></fieldset>{state.briefError && <p className="form-error" role="alert">{state.briefError}</p>}<button className="solid-button" type="submit" disabled={state.briefSubmitting}>{state.briefSubmitting ? t.sending : t.sendBrief} {!state.briefSubmitting && <ArrowUpRight size={16} />}</button></form>;
+function ProjectBrief({ t }) {
+  return <form className="brief-form" action={FORM_ACTION} method="POST"><FormSettings type="brief" /><div className="form-grid"><label>{t.brand}<input name="brand_name" required type="text" placeholder={t.brandPlaceholder} /></label><label>{t.instagram}<input name="instagram" type="text" placeholder="@yourbrand" /></label></div><div className="form-grid"><label>{t.contactEmail}<input name="email" required type="email" placeholder="you@brand.com" /></label><label>{t.total}<input name="total_pieces" required type="number" min="1" step="1" placeholder="e.g. 500" /></label></div><label>{t.product}<input name="product_type" required type="text" placeholder={t.productPlaceholder} /></label><div className="form-grid"><label>{t.colours}<input name="colours" required type="text" placeholder={t.coloursPlaceholder} /></label><label>{t.pieces}<input name="pieces_per_style" required type="text" placeholder={t.piecesPlaceholder} /></label></div><fieldset><legend>{t.techPacks}</legend><label className="radio-label"><input name="tech_packs_available" required type="radio" value="yes" /> {t.yes}</label><label className="radio-label"><input name="tech_packs_available" required type="radio" value="no" /> {t.no}</label></fieldset><FormNotice /><button className="solid-button" type="submit">{t.sendBrief} <ArrowUpRight size={16} /></button></form>;
+}
+
+function FormSettings({ type }) {
+  const { language } = useLanguage();
+  return <>
+    <input type="hidden" name="form_type" value={type} />
+    <input type="hidden" name="language" value={language} />
+    <div className="form-honeypot" aria-hidden="true"><label>Leave this field empty<input name="website" type="text" tabIndex={-1} autoComplete="off" /></label></div>
+  </>;
+}
+
+function FormNotice() {
+  const { language } = useLanguage();
+  const notices = {
+    en: "Prefer email? Contact us directly:",
+    de: "Lieber per E-Mail? Schreiben Sie uns direkt:",
+    fr: "Vous préférez un e-mail ? Écrivez-nous directement :",
+  };
+  return <p className="form-notice">{notices[language] || notices.en} <a href={`mailto:${FORM_RECIPIENT}`}>{FORM_RECIPIENT}</a></p>;
 }
