@@ -57,3 +57,9 @@
 @media (prefers-reduced-motion: reduce) {
   .book-title-word { opacity: 1; transform: none; animation: none; }
 }
+
+.brief-form > label { margin-bottom: 30px; }
+.booking form .form-privacy + .solid-button { margin-top: 18px; }
+
+.booking-close:disabled { opacity: .5; cursor: wait; }
+.booking .form-error { display: block; color: #ff9d91; font-size: 13px; line-height: 1.6; }

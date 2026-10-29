@@ -7,7 +7,7 @@ export default defineConfig({
     name: "copy-not-found-page",
     closeBundle() {
       copyFileSync("dist/index.html", "dist/404.html");
-      for (const route of ["impressum", "datenschutz"]) {
+      for (const route of ["agb", "terms", "impressum", "legal-notice", "datenschutz", "privacy"]) {
         mkdirSync(`dist/${route}`, { recursive: true });
         copyFileSync("dist/index.html", `dist/${route}/index.html`);
       }

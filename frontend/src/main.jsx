@@ -9,6 +9,6 @@ import "./styles/pages/home/index.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <LanguageProvider>{window.location.pathname === "/" ? <HomePage /> : ["/impressum", "/datenschutz"].includes(window.location.pathname.replace(/\/$/, "")) ? <LegalPage /> : <NotFoundPage />}</LanguageProvider>
+    <LanguageProvider>{window.location.pathname === "/" ? <HomePage /> : ["/agb", "/impressum", "/terms", "/legal-notice", "/datenschutz", "/privacy"].includes(window.location.pathname.replace(/\/$/, "")) ? <LegalPage /> : <NotFoundPage />}</LanguageProvider>
   </React.StrictMode>
 );

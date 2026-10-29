@@ -1,7 +1,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
 import { ArrowUpRight, Check, X } from "lucide-react";
-import { capabilityGalleries, capabilityImages, selectedWorkImages } from "../data/images";
+import { bikerGroups, capabilityGalleries, capabilityImages, selectedWorkImages } from "../data/images";
 import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
 
@@ -102,10 +102,11 @@ function AnimatedStatValue({ value }) {
 }
 
 export function CapabilitiesSection() {
-  const { copy } = useLanguage();
+  const { copy, language } = useLanguage();
   const { capabilities } = copy;
   const [activeGallery, setActiveGallery] = React.useState(null);
   const [activePhotoIndex, setActivePhotoIndex] = React.useState(0);
+  const [activeBikerGroup, setActiveBikerGroup] = React.useState(0);
   const dialogRef = React.useRef(null);
   const closeButtonRef = React.useRef(null);
 
@@ -145,8 +146,14 @@ export function CapabilitiesSection() {
 
   const openGallery = (name, imageKey) => {
     setActivePhotoIndex(0);
+    setActiveBikerGroup(0);
     setActiveGallery({ name, imageKey });
   };
+  const isBiker = activeGallery?.imageKey === "biker";
+  const bikerGroup = bikerGroups[activeBikerGroup];
+  const galleryImages = activeGallery ? (isBiker ? bikerGroup.images : capabilityGalleries[activeGallery.imageKey]) : [];
+  const groupName = bikerGroup.name[language] || bikerGroup.name.en;
+  const productName = isBiker ? groupName : activeGallery?.name;
   return <section className="capabilities section-pad" id="make">
     <div className="section-heading"><div><SectionLabel>{capabilities.label}</SectionLabel><h2>{capabilities.titleBefore}<br /><em>{capabilities.titleEmphasis}</em> {capabilities.titleAfter}</h2></div><p>{capabilities.description}</p></div>
     <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className="capability-card" tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} onClick={() => openGallery(name, imageKey)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openGallery(name, imageKey); } }} key={imageKey}>
@@ -159,18 +166,24 @@ export function CapabilitiesSection() {
           <div><SectionLabel>{capabilities.label}</SectionLabel><h3 id="capability-dialog-title">{activeGallery.name}</h3></div>
           <button className="capability-dialog-close" type="button" onClick={() => setActiveGallery(null)} ref={closeButtonRef}><X size={19} /><span>{copy.nav.close}</span></button>
         </header>
+        {isBiker && <nav className="biker-groups" aria-label={language === "de" ? "Bikerwear-Gruppen" : "Bikerwear groups"}>
+          {bikerGroups.map((group, index) => <button type="button" className={`biker-group ${activeBikerGroup === index ? "is-active" : ""}`} aria-pressed={activeBikerGroup === index} onClick={() => { setActiveBikerGroup(index); setActivePhotoIndex(0); }} key={group.id}>
+            <img src={group.images[0]} alt="" decoding="async" />
+            <span>{group.name[language] || group.name.en}</span>
+          </button>)}
+        </nav>}
         <div className="capability-gallery-browser">
-          <nav className="capability-gallery-tabs" aria-label={`${activeGallery.name} products`}>
-            {capabilityGalleries[activeGallery.imageKey].map((image, photoIndex) => <button className={`capability-product-tab ${activePhotoIndex === photoIndex ? "is-active" : ""}`} type="button" aria-pressed={activePhotoIndex === photoIndex} aria-label={`${activeGallery.name} product ${photoIndex + 1}`} onClick={() => setActivePhotoIndex(photoIndex)} key={image || `${activeGallery.imageKey}-${photoIndex}`}>
+          <nav className="capability-gallery-tabs" aria-label={`${productName} products`}>
+            {galleryImages.map((image, photoIndex) => <button className={`capability-product-tab ${activePhotoIndex === photoIndex ? "is-active" : ""}`} type="button" aria-pressed={activePhotoIndex === photoIndex} aria-label={`${productName} product ${photoIndex + 1}`} onClick={() => setActivePhotoIndex(photoIndex)} key={image || `${activeGallery.imageKey}-${photoIndex}`}>
               {image ? <img src={image} alt="" decoding="async" /> : <span className="capability-product-tab-placeholder">{activeGallery.name}</span>}
               <span className="capability-product-tab-label">PRODUCT {String(photoIndex + 1).padStart(2, "0")}</span>
             </button>)}
           </nav>
           <div className="capability-product-stage" aria-live="polite">
-            {capabilityGalleries[activeGallery.imageKey][activePhotoIndex]
-              ? <img key={`${activeGallery.imageKey}-${activePhotoIndex}`} src={capabilityGalleries[activeGallery.imageKey][activePhotoIndex]} alt={`${activeGallery.name} product ${activePhotoIndex + 1}`} />
-              : <div className="capability-gallery-placeholder" key={`${activeGallery.imageKey}-${activePhotoIndex}`}><span>{activeGallery.name}</span><small>{String(activePhotoIndex + 1).padStart(2, "0")}</small></div>}
-            <span className="capability-product-count">{String(activePhotoIndex + 1).padStart(2, "0")} / {String(capabilityGalleries[activeGallery.imageKey].length).padStart(2, "0")}</span>
+            {galleryImages[activePhotoIndex]
+              ? <img key={`${activeGallery.imageKey}-${isBiker ? bikerGroup.id : "all"}-${activePhotoIndex}`} src={galleryImages[activePhotoIndex]} alt={`${productName} product ${activePhotoIndex + 1}`} />
+              : <div className="capability-gallery-placeholder" key={`${activeGallery.imageKey}-${isBiker ? bikerGroup.id : "all"}-${activePhotoIndex}`}><span>{activeGallery.name}</span><small>{String(activePhotoIndex + 1).padStart(2, "0")}</small></div>}
+            <span className="capability-product-count">{String(activePhotoIndex + 1).padStart(2, "0")} / {String(galleryImages.length).padStart(2, "0")}</span>
           </div>
         </div>
       </section>

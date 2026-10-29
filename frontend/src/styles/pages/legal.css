@@ -9,3 +9,11 @@
 .legal-content a:hover, .legal-back:hover, .legal-home:hover { color: #777770; }
 .legal-content code { font-size: .9em; }
 .legal-back { padding-bottom: 5px; border-bottom: 1px solid currentColor; }
+
+.legal-languages { display: flex; gap: 20px; margin-top: 24px; font-size: 14px; }
+.legal-languages [aria-current="page"] { text-decoration: underline; text-underline-offset: 4px; }
+.legal-content ul { margin: 14px 0 0; padding-left: 24px; color: #555550; font-size: 15px; line-height: 1.75; }
+
+.legal-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 28px clamp(20px, 5vw, 64px); font-size: 13px; }
+.legal-footer nav { display: flex; flex-wrap: wrap; gap: 24px; }
+.legal-footer a:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }

@@ -2,12 +2,14 @@ import React from "react";
 import { ArrowUpRight, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
-import { FORM_ACTION, FORM_RECIPIENT } from "../data/contact";
+import ContactForm from "./ContactForm";
+import { FORM_RECIPIENT } from "../data/contact";
 
 export function BookingSection() {
   const { copy } = useLanguage();
   const t = copy.booking;
   const [mode, setMode] = React.useState(null);
+  const [sending, setSending] = React.useState(false);
   const titleWords = [...t.titleBefore.trim().split(/\s+/), t.titleEmphasis];
   return (
     <section className={`booking section-pad ${mode ? "has-form" : ""}`} id="book">
@@ -34,27 +36,26 @@ export function BookingSection() {
         <div className="comparison-card booking-form-card">
           <div className="booking-form-card-heading">
             <div>
-              <SectionLabel>{mode === "inquiry" ? copy.nav.book : t.briefLabel}</SectionLabel>
+              <SectionLabel>{mode === "inquiry" ? "Book a Call" : "Project Brief"}</SectionLabel>
               <h3>{mode === "inquiry" ? t.sendInquiry : t.briefLabel}</h3>
               <p>{mode === "inquiry" ? t.description : t.briefDescription}</p>
             </div>
-            <button className="booking-close" type="button" aria-label={copy.nav.close} onClick={() => setMode(null)}><X size={13} aria-hidden="true" /><span>{copy.nav.close}</span></button>
+            <button className="booking-close" disabled={sending} type="button" aria-label={copy.nav.close} onClick={() => setMode(null)}><X size={13} aria-hidden="true" /><span>{copy.nav.close}</span></button>
           </div>
-          {mode === "inquiry" ? <form id="inquiry-form" action={FORM_ACTION} method="POST">
+          {mode === "inquiry" ? <ContactForm id="inquiry-form" submitLabel={t.sendInquiry} onBusyChange={setSending}>
             <FormSettings type="inquiry" />
-            <div className="form-grid"><label>{t.name}<input name="name" required type="text" placeholder={t.namePlaceholder} /></label><label>{t.email}<input name="email" required type="email" placeholder="you@brand.com" /></label></div>
-            <label>{t.message}<textarea name="message" required minLength="10" placeholder={t.messagePlaceholder} rows="4" /></label>
-            <FormNotice />
-            <button className="solid-button inquiry-submit" type="submit">{t.sendInquiry} <ArrowUpRight size={16} /></button>
-          </form> : <ProjectBrief t={t} />}
+            <div className="form-grid"><label>{t.name}<input name="name" maxLength={200} required type="text" placeholder={t.namePlaceholder} /></label><label>{t.email}<input name="email" maxLength={254} required type="email" placeholder="you@brand.com" /></label></div>
+            <label>{t.message}<textarea name="message" maxLength={10000} required minLength="10" placeholder={t.messagePlaceholder} rows="4" /></label>
+            <FormNotice /><FormPrivacyNotice />
+          </ContactForm> : <ProjectBrief t={t} onBusyChange={setSending} />}
         </div>
       </div>}
     </section>
   );
 }
 
-function ProjectBrief({ t }) {
-  return <form className="brief-form" action={FORM_ACTION} method="POST"><FormSettings type="brief" /><div className="form-grid"><label>{t.brand}<input name="brand_name" required type="text" placeholder={t.brandPlaceholder} /></label><label>{t.instagram}<input name="instagram" type="text" placeholder="@yourbrand" /></label></div><div className="form-grid"><label>{t.contactEmail}<input name="email" required type="email" placeholder="you@brand.com" /></label><label>{t.total}<input name="total_pieces" required type="number" min="1" step="1" placeholder="e.g. 500" /></label></div><label>{t.product}<input name="product_type" required type="text" placeholder={t.productPlaceholder} /></label><div className="form-grid"><label>{t.colours}<input name="colours" required type="text" placeholder={t.coloursPlaceholder} /></label><label>{t.pieces}<input name="pieces_per_style" required type="text" placeholder={t.piecesPlaceholder} /></label></div><fieldset><legend>{t.techPacks}</legend><label className="radio-label"><input name="tech_packs_available" required type="radio" value="yes" /> {t.yes}</label><label className="radio-label"><input name="tech_packs_available" required type="radio" value="no" /> {t.no}</label></fieldset><FormNotice /><button className="solid-button" type="submit">{t.sendBrief} <ArrowUpRight size={16} /></button></form>;
+function ProjectBrief({ t, onBusyChange }) {
+  return <ContactForm className="brief-form" submitLabel={t.sendBrief} onBusyChange={onBusyChange}><FormSettings type="brief" /><div className="form-grid"><label>{t.brand}<input name="brand_name" maxLength={200} required type="text" placeholder={t.brandPlaceholder} /></label><label>{t.instagram}<input name="instagram" maxLength={200} type="text" placeholder="@yourbrand" /></label></div><div className="form-grid"><label>{t.contactEmail}<input name="email" maxLength={254} required type="email" placeholder="you@brand.com" /></label><label>{t.total}<input name="total_pieces" type="number" min="1" max="999999999" step="1" placeholder="e.g. 500" /></label></div><label>{t.product}<input name="product_type" maxLength={1000} type="text" placeholder={t.productPlaceholder} /></label><div className="form-grid"><label>{t.colours}<input name="colours" maxLength={1000} type="text" placeholder={t.coloursPlaceholder} /></label><label>{t.pieces}<input name="pieces_per_style" maxLength={2000} type="text" placeholder={t.piecesPlaceholder} /></label></div><fieldset><legend>{t.techPacks}</legend><label className="radio-label"><input name="tech_packs_available" type="radio" value="yes" /> {t.yes}</label><label className="radio-label"><input name="tech_packs_available" type="radio" value="no" /> {t.no}</label></fieldset><FormNotice /><FormPrivacyNotice /></ContactForm>;
 }
 
 function FormSettings({ type }) {
@@ -74,4 +75,9 @@ function FormNotice() {
     fr: "Vous préférez un e-mail ? Écrivez-nous directement :",
   };
   return <p className="form-notice">{notices[language] || notices.en} <a href={`mailto:${FORM_RECIPIENT}`}>{FORM_RECIPIENT}</a></p>;
+}
+
+function FormPrivacyNotice() {
+  const { language } = useLanguage();
+  return <p className="form-notice form-privacy">{language === "de" ? <>Ihre Angaben verwenden wir nur zur Bearbeitung Ihrer Anfrage. Mehr dazu in unserer <a href="/datenschutz/">Datenschutzerklärung</a>.</> : <>We only use the details you send us to handle your enquiry. More in our <a href="/privacy/">Privacy Policy</a>.</>}</p>;
 }

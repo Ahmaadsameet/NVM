@@ -134,3 +134,9 @@
   .work-grid { grid-auto-flow: initial; grid-auto-columns: initial; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(12px, 1.35vw, 20px); margin-top: 44px; overflow: visible; }
   .work-grid figure:nth-child(even) { padding-top: 0; }
 }
+
+/* Show complete product photographs on their white studio background. */
+.capability-card .image-wrap { background: #fff; }
+.capability-card .image-wrap img { object-fit: contain; filter: none; }
+.capability-card:hover .image-wrap img,
+.capability-card:focus-visible .image-wrap img { transform: none; }

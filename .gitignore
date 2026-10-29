@@ -59,3 +59,23 @@ pnpm-debug.log*
 # Operating-system files
 .DS_Store
 Thumbs.db
+
+# Private client source material, reports, and local review artifacts
+/content/
+/documents/
+/pdf/
+/tmp/
+/output/
+/*.pdf
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.sql
+*.dump
+*.backup
+.vscode/
+.idea/
+*.har
+playwright-report/
+test-results/

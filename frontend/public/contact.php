@@ -20,6 +20,8 @@ $messages = [
         'success' => 'Thank you. Your message has been accepted for sending. We will be in touch shortly.',
         'invalid' => 'Please go back and check all required fields, including your email address.',
         'failed' => 'Your message could not be sent. Please try again or email us directly.',
+        'limited' => 'Too many enquiries. Please wait 15 minutes before trying again.',
+        'unavailable' => 'The contact service is temporarily unavailable. Please try again later or email us directly.',
         'method' => 'Please use the contact form to send a message.',
         'back' => 'Back to website',
         'title' => 'Contact North Weave Mills',
@@ -28,6 +30,8 @@ $messages = [
         'success' => 'Vielen Dank. Ihre Nachricht wurde zum Versand angenommen. Wir melden uns in Kürze.',
         'invalid' => 'Bitte gehen Sie zurück und prüfen Sie alle Pflichtfelder sowie Ihre E-Mail-Adresse.',
         'failed' => 'Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.',
+        'limited' => 'Zu viele Anfragen. Bitte versuchen Sie es in 15 Minuten erneut.',
+        'unavailable' => 'Der Kontaktservice ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut oder schreiben Sie uns direkt.',
         'method' => 'Bitte verwenden Sie das Kontaktformular, um eine Nachricht zu senden.',
         'back' => 'Zurück zur Website',
         'title' => 'Kontakt zu North Weave Mills',
@@ -36,6 +40,8 @@ $messages = [
         'success' => 'Merci. Votre message a été accepté pour envoi. Nous vous contacterons bientôt.',
         'invalid' => 'Veuillez revenir en arrière et vérifier tous les champs obligatoires et votre adresse e-mail.',
         'failed' => 'Votre message n’a pas pu être envoyé. Réessayez ou écrivez-nous directement.',
+        'limited' => 'Trop de demandes. Veuillez réessayer dans 15 minutes.',
+        'unavailable' => 'Le service est temporairement indisponible. Réessayez plus tard ou écrivez-nous directement.',
         'method' => 'Veuillez utiliser le formulaire de contact pour envoyer un message.',
         'back' => 'Retour au site',
         'title' => 'Contacter North Weave Mills',
@@ -47,11 +53,16 @@ function escape(string $value): string
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-function respond(int $status, string $key): void
+function respond(int $status, string $key, ?string $field = null): void
 {
     global $language, $messages;
     http_response_code($status);
     $copy = $messages[$language];
+    if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
+        header('Content-Type: application/json; charset=UTF-8');
+        echo json_encode(['message' => $copy[$key], 'field' => $field]);
+        exit;
+    }
     ?>
     <!doctype html>
     <html lang="<?= escape($language) ?>">
@@ -84,11 +95,11 @@ function field(string $name, int $maxLength, bool $required = true): string
 {
     $value = $_POST[$name] ?? '';
     if (!is_string($value) || strlen($value) > $maxLength || strpos($value, "\0") !== false) {
-        respond(422, 'invalid');
+        respond(422, 'invalid', $name);
     }
     $value = trim($value);
     if ($required && $value === '') {
-        respond(422, 'invalid');
+        respond(422, 'invalid', $name);
     }
     return $value;
 }
@@ -112,27 +123,27 @@ if (field('website', 500, false) !== '') {
 $type = field('form_type', 20);
 $email = field('email', 254);
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/', $email)) {
-    respond(422, 'invalid');
+    respond(422, 'invalid', 'email');
 }
 
 if ($type === 'inquiry') {
     $name = field('name', 200);
     $message = field('message', 10000);
     if (strlen($message) < 10) {
-        respond(422, 'invalid');
+        respond(422, 'invalid', 'message');
     }
     $subject = 'New North Weave Mills inquiry';
     $body = "Name: {$name}\nEmail: {$email}\n\n{$message}";
 } elseif ($type === 'brief') {
     $brand = field('brand_name', 200);
     $instagram = field('instagram', 200, false);
-    $product = field('product_type', 1000);
-    $total = field('total_pieces', 10);
-    $techPacks = field('tech_packs_available', 3);
-    $colours = field('colours', 1000);
-    $pieces = field('pieces_per_style', 2000);
-    if (!preg_match('/^[1-9][0-9]{0,8}$/', $total) || !in_array($techPacks, ['yes', 'no'], true)) {
-        respond(422, 'invalid');
+    $product = field('product_type', 1000, false);
+    $total = field('total_pieces', 10, false);
+    $techPacks = field('tech_packs_available', 3, false);
+    $colours = field('colours', 1000, false);
+    $pieces = field('pieces_per_style', 2000, false);
+    if (($total !== '' && !preg_match('/^[1-9][0-9]{0,8}$/', $total)) || ($techPacks !== '' && !in_array($techPacks, ['yes', 'no'], true))) {
+        respond(422, 'invalid', $total !== '' && !preg_match('/^[1-9][0-9]{0,8}$/', $total) ? 'total_pieces' : 'tech_packs_available');
     }
     $subject = 'New North Weave Mills project brief';
     $body = implode("\n", [
@@ -141,13 +152,68 @@ if ($type === 'inquiry') {
         "Contact email: {$email}",
         "Product: {$product}",
         "Total pieces: {$total}",
-        'Tech packs available: ' . ($techPacks === 'yes' ? 'Yes' : 'No'),
+        'Tech packs available: ' . ($techPacks === '' ? 'Not provided' : ($techPacks === 'yes' ? 'Yes' : 'No')),
         "Colours: {$colours}",
         "Pieces per style: {$pieces}",
     ]);
 } else {
     respond(422, 'invalid');
 }
+
+
+// Shared, locked counters live outside the web root. No form details or raw IPs are stored.
+// shortcut: this local-file limiter assumes one web server; use shared counters if hosting scales to multiple servers.
+function limitSubmissions(): void
+{
+    $path = sys_get_temp_dir() . '/nwm-contact-' . hash('sha256', __DIR__) . '.json';
+    $handle = @fopen($path, 'c+');
+    if ($handle === false || !flock($handle, LOCK_EX)) {
+        if (is_resource($handle)) fclose($handle);
+        error_log('North Weave Mills contact form: rate limit storage unavailable.');
+        respond(503, 'unavailable');
+    }
+    @chmod($path, 0600);
+    $status = 200;
+    try {
+        $raw = stream_get_contents($handle);
+        $state = $raw === '' ? ['secret' => bin2hex(random_bytes(32)), 'entries' => []] : json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+        if (!is_array($state) || !is_string($state['secret'] ?? null) || !is_array($state['entries'] ?? null)) {
+            throw new RuntimeException('Invalid counter data');
+        }
+        $now = time();
+        foreach ($state['entries'] as $key => $entry) {
+            if ($entry['expires'] <= $now) unset($state['entries'][$key]);
+        }
+        // Use the connection address, never a caller-controlled forwarding header.
+        $key = hash_hmac('sha256', $_SERVER['REMOTE_ADDR'] ?? 'unknown', $state['secret']);
+        if (!isset($state['entries'][$key]) && count($state['entries']) >= 1000) {
+            $status = 503;
+        } else {
+            $entry = $state['entries'][$key] ?? ['count' => 0, 'expires' => $now + 900];
+            if ($entry['count'] >= 5) {
+                $status = 429;
+                header('Retry-After: ' . max(1, $entry['expires'] - $now));
+            } else {
+                $entry['count']++;
+                $state['entries'][$key] = $entry;
+            }
+        }
+        $data = json_encode($state, JSON_THROW_ON_ERROR);
+        rewind($handle);
+        if (!ftruncate($handle, 0) || fwrite($handle, $data) !== strlen($data) || !fflush($handle)) {
+            throw new RuntimeException('Cannot save counters');
+        }
+    } catch (Throwable $error) {
+        error_log('North Weave Mills contact form: rate limit storage failed.');
+        $status = 503;
+    } finally {
+        flock($handle, LOCK_UN);
+        fclose($handle);
+    }
+    if ($status !== 200) respond($status, $status === 429 ? 'limited' : 'unavailable');
+}
+
+limitSubmissions();
 
 // Only the validated email enters a header. Recipient, sender and subjects
 // are fixed here and cannot be overridden by submitted form fields.
@@ -164,6 +230,9 @@ $sent = function_exists('mail') && @mail(CONTACT_RECIPIENT, $subject, $encodedBo
 if (!$sent) {
     error_log('North Weave Mills contact form: mail transport did not accept the message.');
     respond(503, 'failed');
+}
+if (str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
+    respond(200, 'success');
 }
 // Redirect after POST so refreshing the confirmation does not resend mail.
 header('Location: /contact.php?sent=1&language=' . rawurlencode($language), true, 303);

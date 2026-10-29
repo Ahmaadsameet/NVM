@@ -89,7 +89,7 @@ function LanguagePicker({ mobile = false }) {
       <ChevronDown className={open ? "is-open" : ""} size={13} aria-hidden="true" />
     </button>
     {open && <div className="language-menu" role="listbox" aria-label="Language">
-      {languageOptions.map(({ code, label }) => <button className={language === code ? "is-active" : ""} type="button" role="option" aria-selected={language === code} key={code} onClick={() => { setLanguage(code); setOpen(false); }}>{label}</button>)}
+      {languageOptions.map(({ code, label }) => <button className={language === code ? "is-active" : ""} type="button" role="option" aria-selected={language === code} key={code} onClick={() => { setLanguage(code); window.localStorage.setItem("nwm-language", code); setOpen(false); }}>{label}</button>)}
     </div>}
   </div>;
 }
