@@ -3,12 +3,12 @@ const productImage = (category, filename) =>
 
 // Images used by the capabilities cards.
 export const capabilityImages = {
-  denim: productImage("fashionwear/denim", "07. Carpenter Jeans Light Blue.jpg"),
-  leather: productImage("fashionwear/leather", "09. Leather Bomber Worn.jpg"),
-  biker: productImage("bikerwear/cordura", "01. Touring Jacket Blue Ice.jpg"),
-  fashion: productImage("fashionwear/tracksuits", "10. Track Set Worn.jpg"),
-  knit: productImage("fashionwear/hoodies", "05. Hoodie Cream.jpg"),
-  sport: productImage("fashionwear/t-shirts", "3. Oversized Tee Blue.jpg")
+  denim: "/assets/covers/denim.png",
+  leather: "/assets/covers/leatherwear.png",
+  biker: "/assets/covers/bikerwear.png",
+  fashion: "/assets/covers/tracksuits.png",
+  knit: "/assets/covers/hoodies.png",
+  sport: "/assets/covers/gray-tshirt.png"
 };
 
 export const capabilityGalleries = {
