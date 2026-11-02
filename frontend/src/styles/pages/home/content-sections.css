@@ -7,14 +7,14 @@
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 80px; border-top: 1px solid #c9c9c6; }
 .stats div { display: flex; flex-direction: column; gap: 8px; padding: 20px; border-right: 1px solid #c9c9c6; }
 .stats div:last-child { border: 0; }
-.stats strong { font-size: clamp(23px, 2.7vw, 34px); font-weight: 500; letter-spacing: -.045em; }
+.stats strong { font-size: 46px; font-weight: 500; letter-spacing: -.045em; }
 .stat-value { display: inline-flex; align-self: center; justify-content: center; min-width: 4ch; font-variant-numeric: tabular-nums; }
 .stat-value > span { display: inline-block; }
 .intro.scroll-reveal:not(.is-visible) .stat-value { opacity: 0; transform: translate3d(0, 7px, 0); }
 .intro.scroll-reveal.is-visible .stat-value { animation: statDissolve 1.2s cubic-bezier(.22, 1, .36, 1) .28s both; }
 .intro.scroll-reveal.is-visible .stats > div:nth-child(2) .stat-value { animation-delay: .4s; }
 .intro.scroll-reveal.is-visible .stats > div:nth-child(3) .stat-value { animation-delay: .52s; }
-.stats span { color: #a0a09b; font: 9px "IBM Plex Mono", monospace; letter-spacing: .12em; }
+.stats span { color: var(--ink); font: 700 13px "IBM Plex Mono", monospace; letter-spacing: .12em; }
 .stats .stat-value > span { color: inherit; font: inherit; letter-spacing: inherit; }
 
 @keyframes introLogoDissolve {
@@ -82,7 +82,7 @@
 
 .quality { display: grid; grid-template-columns: 1fr 1fr; gap: 65px; background: #efefeb; border-block: 1px solid var(--soft-line); }
 .quality > div > p { max-width: 500px; margin-top: 23px; color: #626260; font-size: 14px; line-height: 1.65; }
-.quality-panel { align-self: end; }
+.quality-panel { align-self: start; margin-top: 20px; }
 .quality-panel > div { display: flex; gap: 20px; padding: 14px 0; border-top: 1px solid var(--soft-line); }
 .quality-panel > div:last-of-type { border-bottom: 1px solid var(--soft-line); }
 .quality-panel span { flex: 0 0 115px; color: #b0b0ac; font: 9px "IBM Plex Mono", monospace; letter-spacing: .11em; }
@@ -102,7 +102,7 @@
 .comparison-card p > span:first-child { flex: 0 0 15px; }
 .comparison-card.bright p svg { flex: 0 0 16px; }
 .mini-brand { display: flex; align-items: center; gap: 10px; font: 10px "IBM Plex Mono", monospace; letter-spacing: .14em; }
-.mini-brand .brand-mark { width: 18px; height: 18px; font-size: 9px; }
+.mini-brand .comparison-logo { display: block; width: 54px; height: 28px; object-fit: contain; filter: brightness(0); }
 
 .work-grid { display: grid; grid-auto-flow: column; grid-auto-columns: clamp(220px, 22vw, 320px); align-items: start; gap: clamp(12px, 1.6vw, 24px); max-width: 100%; margin-top: 65px; padding-bottom: 42px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; }
 .work-grid figure { position: relative; isolation: isolate; display: flex; flex-direction: column; min-width: 0; height: 100%; margin: 0; scroll-snap-align: start; transition: transform .3s ease; }
@@ -136,7 +136,11 @@
 }
 
 /* Show complete product photographs on their white studio background. */
+.capability-card { background: #fff; border-radius: 16px; padding-bottom: 20px; }
 .capability-card .image-wrap { background: #fff; }
+.capability-card .card-meta, .capability-card > p { margin-inline: 20px; }
 .capability-card .image-wrap img { object-fit: contain; filter: none; }
 .capability-card:hover .image-wrap img,
 .capability-card:focus-visible .image-wrap img { transform: none; }
+
+.selected-work h2 { white-space: nowrap; font-size: clamp(20px, 5vw, 48px); }

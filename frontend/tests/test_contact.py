@@ -25,8 +25,8 @@ $_SERVER['REQUEST_METHOD'] = 'POST';
 $_SERVER['REMOTE_ADDR'] = $test['ip'];
 $_SERVER['HTTP_ACCEPT'] = 'application/json';
 $GLOBALS['mail_test'] = null;
-function mail($to, $subject, $body, $headers) {
-    $GLOBALS['mail_test'] = ['to' => $to, 'headers' => $headers, 'body' => base64_decode($body)];
+function mail($to, $subject, $body, $headers, $additional_params = '') {
+    $GLOBALS['mail_test'] = ['to' => $to, 'headers' => $headers, 'body' => base64_decode($body), 'additional_params' => $additional_params];
     return !getenv('TEST_MAIL_FAIL');
 }
 register_shutdown_function(function () {
@@ -39,7 +39,7 @@ require __DIR__ . '/contact.php';
         self.temp.cleanup()
 
     def request(self, post=None, ip='192.0.2.1', fail=False):
-        payload = post if post is not None else {'form_type': 'brief', 'brand_name': 'Test Brand', 'email': 'test@example.com'}
+        payload = post if post is not None else {'form_type': 'brief', 'brand_name': 'Test Brand', 'name': 'Test Person', 'product_type': 'bikerwear', 'email': 'test@example.com'}
         env = dict(os.environ, TEST_MAIL_FAIL='1' if fail else '')
         result = subprocess.run([PHP, '-d', 'disable_functions=mail', '-d', 'sys_temp_dir=' + str(self.root), str(self.root / 'request.php'), json.dumps({'post': payload, 'ip': ip})], capture_output=True, text=True, env=env, check=True)
         body, meta = result.stdout.split('\nTEST_META')
@@ -49,14 +49,15 @@ require __DIR__ . '/contact.php';
         for post in [None, {'form_type': 'inquiry', 'name': 'Test Person', 'email': 'test@example.com', 'message': 'An enquiry with umlauts: äöü.'}]:
             meta, body = self.request(post)
             self.assertEqual(meta['status'], 200)
-            self.assertEqual(meta['mail']['to'], 'samoon@northweavemills.com')
+            self.assertEqual(meta['mail']['to'], 'info@northweavemills.com')
+            self.assertEqual(meta['mail']['additional_params'], '-finfo@northweavemills.com')
             self.assertEqual(meta['mail']['headers']['Reply-To'], 'test@example.com')
-            self.assertIn('samoon@northweavemills.com', meta['mail']['headers']['From'])
+            self.assertIn('info@northweavemills.com', meta['mail']['headers']['From'])
             self.assertIn('accepted for sending', body['message'])
 
     def test_invalid_fields_never_send(self):
-        base = {'form_type': 'brief', 'brand_name': 'Test', 'email': 'test@example.com'}
-        for changes in [{'brand_name': ''}, {'email': 'invalid'}, {'email': 'test@example.com\r\nBcc: bad@example.com'}, {'brand_name': 'ä' * 101}, {'total_pieces': '-1'}, {'tech_packs_available': 'bad'}, {'website': 'bot'}]:
+        base = {'form_type': 'brief', 'brand_name': 'Test', 'name': 'Test Person', 'product_type': 'denim', 'email': 'test@example.com'}
+        for changes in [{'name': ''}, {'product_type': 'other'}, {'target_delivery_date': '2026-02-30'}, {'phone': 'x' * 81}, {'brand_name': ''}, {'email': 'invalid'}, {'email': 'test@example.com\r\nBcc: bad@example.com'}, {'brand_name': 'ä' * 101}, {'total_pieces': '-1'}, {'tech_packs_available': 'bad'}, {'website': 'bot'}]:
             meta, body = self.request(dict(base, **changes))
             self.assertEqual(meta['status'], 422, changes)
             self.assertIsNone(meta['mail'])

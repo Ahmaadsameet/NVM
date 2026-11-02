@@ -1,7 +1,7 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { ArrowUpRight, Check, X } from "lucide-react";
-import { bikerGroups, capabilityGalleries, capabilityImages, selectedWorkImages } from "../data/images";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { bikerGroups, sportswearGroups, capabilityGalleries, capabilityImages, selectedWorkImages } from "../data/images";
 import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
 
@@ -35,7 +35,7 @@ export function Ticker() {
 
 export function IntroSection() {
   const { copy } = useLanguage();
-  const values = ["01", "02", "06–08"];
+  const values = ["01", "02", "03–05"];
   return <section className="intro section-pad" id="stats"><img className="intro-logo" src="/assets/nwm-logo-full.png" alt="North Weave Mills" decoding="async" /><p className="statement">{copy.intro.before} <em>{copy.intro.emphasis}</em></p><div className="stats">{copy.intro.stats.map((label, index) => <div key={label}><AnimatedStatValue value={values[index]} /><span>{label}</span></div>)}</div></section>;
 }
 
@@ -106,7 +106,8 @@ export function CapabilitiesSection() {
   const { capabilities } = copy;
   const [activeGallery, setActiveGallery] = React.useState(null);
   const [activePhotoIndex, setActivePhotoIndex] = React.useState(0);
-  const [activeBikerGroup, setActiveBikerGroup] = React.useState(0);
+  const [activeGroupIndex, setActiveGroupIndex] = React.useState(0);
+  const swipeStart = React.useRef(null);
   const dialogRef = React.useRef(null);
   const closeButtonRef = React.useRef(null);
 
@@ -146,43 +147,81 @@ export function CapabilitiesSection() {
 
   const openGallery = (name, imageKey) => {
     setActivePhotoIndex(0);
-    setActiveBikerGroup(0);
+    setActiveGroupIndex(0);
     setActiveGallery({ name, imageKey });
   };
-  const isBiker = activeGallery?.imageKey === "biker";
-  const bikerGroup = bikerGroups[activeBikerGroup];
-  const galleryImages = activeGallery ? (isBiker ? bikerGroup.images : capabilityGalleries[activeGallery.imageKey]) : [];
-  const groupName = bikerGroup.name[language] || bikerGroup.name.en;
-  const productName = isBiker ? groupName : activeGallery?.name;
+  const galleryName = capabilities.items.find(([, , imageKey]) => imageKey === activeGallery?.imageKey)?.[0] || activeGallery?.name;
+  const productLabel = language === "de" ? "Produkt" : "Product";
+  const groups = activeGallery?.imageKey === "biker" ? bikerGroups : activeGallery?.imageKey === "sport" ? sportswearGroups : null;
+  const activeGroup = groups?.[activeGroupIndex];
+  const galleryImages = activeGallery ? (activeGroup ? activeGroup.images : capabilityGalleries[activeGallery.imageKey]) : [];
+  const productName = activeGroup ? (activeGroup.name[language] || activeGroup.name.en) : galleryName;
+  const changePhoto = (direction) => {
+    if (galleryImages.length < 2) return;
+    setActivePhotoIndex((index) => (index + direction + galleryImages.length) % galleryImages.length);
+  };
+  React.useEffect(() => {
+    if (!activeGallery) return undefined;
+    const handleArrowKey = (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        event.preventDefault();
+        setActivePhotoIndex((index) => (index + (event.key === "ArrowRight" ? 1 : -1) + galleryImages.length) % galleryImages.length);
+      }
+    };
+    document.addEventListener("keydown", handleArrowKey);
+    return () => document.removeEventListener("keydown", handleArrowKey);
+  }, [activeGallery, galleryImages.length]);
+
+  React.useEffect(() => {
+    const tab = dialogRef.current?.querySelector(".capability-product-tab.is-active");
+    if (tab) tab.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [activePhotoIndex, activeGroupIndex, activeGallery]);
+
+  const handleSwipeEnd = (event) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    const end = event.changedTouches[0];
+    if (!start || !end) return;
+    const dx = end.clientX - start.x;
+    const dy = end.clientY - start.y;
+    if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy)) changePhoto(dx < 0 ? 1 : -1);
+  };
   return <section className="capabilities section-pad" id="make">
-    <div className="section-heading"><div><SectionLabel>{capabilities.label}</SectionLabel><h2>{capabilities.titleBefore}<br /><em>{capabilities.titleEmphasis}</em> {capabilities.titleAfter}</h2></div><p>{capabilities.description}</p></div>
+    <div className="section-heading"><div><h2>{capabilities.titleBefore}<br /><em>{capabilities.titleEmphasis}</em> {capabilities.titleAfter}</h2></div></div>
     <div className="capability-grid">{capabilities.items.map(([name, text, imageKey]) => <article className="capability-card" tabIndex="0" role="button" aria-haspopup="dialog" aria-expanded={activeGallery?.imageKey === imageKey} onClick={() => openGallery(name, imageKey)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openGallery(name, imageKey); } }} key={imageKey}>
-      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} decoding="async" /><span className="capability-explore">EXPLORE MORE</span></div>
+      <div className="image-wrap"><img src={capabilityImages[imageKey]} alt={`${name} apparel`} loading="lazy" decoding="async" /><span className="capability-explore">{capabilities.exploreMore}</span></div>
       <div className="card-meta"><h3>{name}</h3></div><p>{text}</p>
     </article>)}</div>
     {activeGallery && createPortal(<div className="capability-dialog-backdrop" onClick={(event) => { if (event.target === event.currentTarget) setActiveGallery(null); }}>
       <section className="capability-dialog" role="dialog" aria-modal="true" aria-labelledby="capability-dialog-title" ref={dialogRef}>
         <header className="capability-dialog-header">
-          <div><SectionLabel>{capabilities.label}</SectionLabel><h3 id="capability-dialog-title">{activeGallery.name}</h3></div>
+          <div><SectionLabel>{capabilities.label}</SectionLabel><h3 id="capability-dialog-title">{galleryName}</h3></div>
           <button className="capability-dialog-close" type="button" onClick={() => setActiveGallery(null)} ref={closeButtonRef}><X size={19} /><span>{copy.nav.close}</span></button>
         </header>
-        {isBiker && <nav className="biker-groups" aria-label={language === "de" ? "Bikerwear-Gruppen" : "Bikerwear groups"}>
-          {bikerGroups.map((group, index) => <button type="button" className={`biker-group ${activeBikerGroup === index ? "is-active" : ""}`} aria-pressed={activeBikerGroup === index} onClick={() => { setActiveBikerGroup(index); setActivePhotoIndex(0); }} key={group.id}>
-            <img src={group.images[0]} alt="" decoding="async" />
+        {groups && <nav className={`biker-groups${activeGallery.imageKey === "biker" ? " biker-groups-compact" : ""}`} aria-label={`${galleryName} ${language === "de" ? "Unterkategorien" : "subcategories"}`}>
+          {groups.map((group, index) => <button type="button" className={`biker-group ${activeGroupIndex === index ? "is-active" : ""}`} aria-pressed={activeGroupIndex === index} onClick={() => { setActiveGroupIndex(index); setActivePhotoIndex(0); }} key={group.id}>
+            <img src={group.images[0]} alt="" loading="lazy" decoding="async" />
             <span>{group.name[language] || group.name.en}</span>
           </button>)}
         </nav>}
         <div className="capability-gallery-browser">
-          <nav className="capability-gallery-tabs" aria-label={`${productName} products`}>
-            {galleryImages.map((image, photoIndex) => <button className={`capability-product-tab ${activePhotoIndex === photoIndex ? "is-active" : ""}`} type="button" aria-pressed={activePhotoIndex === photoIndex} aria-label={`${productName} product ${photoIndex + 1}`} onClick={() => setActivePhotoIndex(photoIndex)} key={image || `${activeGallery.imageKey}-${photoIndex}`}>
-              {image ? <img src={image} alt="" decoding="async" /> : <span className="capability-product-tab-placeholder">{activeGallery.name}</span>}
-              <span className="capability-product-tab-label">PRODUCT {String(photoIndex + 1).padStart(2, "0")}</span>
+          <nav className="capability-gallery-tabs" aria-label={`${productName} ${language === "de" ? "Produkte" : "products"}`}>
+            {galleryImages.map((image, photoIndex) => <button className={`capability-product-tab ${activePhotoIndex === photoIndex ? "is-active" : ""}`} type="button" aria-pressed={activePhotoIndex === photoIndex} aria-label={`${productName} ${productLabel} ${photoIndex + 1}`} onClick={() => setActivePhotoIndex(photoIndex)} key={image || `${activeGallery.imageKey}-${photoIndex}`}>
+              {image ? <img src={image} alt="" loading="lazy" decoding="async" /> : <span className="capability-product-tab-placeholder">{galleryName}</span>}
+              <span className="capability-product-tab-label">{productLabel.toUpperCase()} {String(photoIndex + 1).padStart(2, "0")}</span>
             </button>)}
           </nav>
-          <div className="capability-product-stage" aria-live="polite">
+          <div className="capability-product-stage" aria-live="polite"
+            onTouchStart={(event) => { const touch = event.touches[0]; swipeStart.current = event.touches.length === 1 ? { x: touch.clientX, y: touch.clientY } : null; }}
+            onTouchEnd={handleSwipeEnd} onTouchCancel={() => { swipeStart.current = null; }}>
+            {galleryImages.length > 1 && <>
+              <button className="gallery-arrow gallery-arrow-prev" type="button" aria-label={language === "de" ? "Vorheriger Artikel" : "Previous product"} onClick={() => changePhoto(-1)}><ChevronLeft aria-hidden="true" /></button>
+              <button className="gallery-arrow gallery-arrow-next" type="button" aria-label={language === "de" ? "Nächster Artikel" : "Next product"} onClick={() => changePhoto(1)}><ChevronRight aria-hidden="true" /></button>
+            </>}
             {galleryImages[activePhotoIndex]
-              ? <img key={`${activeGallery.imageKey}-${isBiker ? bikerGroup.id : "all"}-${activePhotoIndex}`} src={galleryImages[activePhotoIndex]} alt={`${productName} product ${activePhotoIndex + 1}`} />
-              : <div className="capability-gallery-placeholder" key={`${activeGallery.imageKey}-${isBiker ? bikerGroup.id : "all"}-${activePhotoIndex}`}><span>{activeGallery.name}</span><small>{String(activePhotoIndex + 1).padStart(2, "0")}</small></div>}
+              ? <img key={`${activeGallery.imageKey}-${activeGroup?.id || "all"}-${activePhotoIndex}`} src={galleryImages[activePhotoIndex]} alt={`${productName} ${productLabel} ${activePhotoIndex + 1}`} decoding="async" draggable="false" />
+              : <div className="capability-gallery-placeholder" key={`${activeGallery.imageKey}-${activeGroup?.id || "all"}-${activePhotoIndex}`}><span>{galleryName}</span><small>{String(activePhotoIndex + 1).padStart(2, "0")}</small></div>}
             <span className="capability-product-count">{String(activePhotoIndex + 1).padStart(2, "0")} / {String(galleryImages.length).padStart(2, "0")}</span>
           </div>
         </div>
@@ -194,19 +233,20 @@ export function CapabilitiesSection() {
 export function ProcessSection() {
   const { copy } = useLanguage();
   const { process } = copy;
-  return <section className="process section-pad" id="process"><div className="section-topline"><SectionLabel>{process.label}</SectionLabel><SectionLabel>{process.sideLabel}</SectionLabel></div><h2>{process.before} <em>{process.emphasis}</em> {process.after}</h2><div className="process-list">{process.steps.map(([number, title, text]) => <div className="process-row" key={number} tabIndex={0}><span className="step-number">{number}</span><div><h3>{title}</h3><p>{text}</p></div></div>)}</div></section>;
+  return <section className="process section-pad" id="process"><h2>{process.before} <em>{process.emphasis}</em> {process.after}</h2><div className="process-list">{process.steps.map(([number, title, text]) => <div className="process-row" key={number} tabIndex={0}><span className="step-number">{number}</span><div><h3>{title}</h3><p>{text}</p></div></div>)}</div></section>;
 }
 
 export function QualitySection() {
   const { copy } = useLanguage();
   const { quality } = copy;
-  return <section className="quality section-pad" id="quality"><div><SectionLabel>{quality.label}</SectionLabel><h2>{quality.titleBefore}<br /><em>{quality.titleEmphasis}</em></h2><p>{quality.description}</p></div><div className="quality-panel">{quality.rows.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}<small>{quality.note}</small></div></section>;
+  return <section className="quality section-pad" id="quality"><div><h2>{quality.titleBefore}<br /><em>{quality.titleEmphasis}</em></h2><p>{quality.description}</p></div><div className="quality-panel">{quality.rows.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div></section>;
 }
 
 export function DifferenceSection() {
   const { copy } = useLanguage();
   const { difference } = copy;
-  return <section className="difference section-pad"><SectionLabel>{difference.label}</SectionLabel><h2>{difference.title}</h2><div className="comparison"><div className="comparison-card muted"><SectionLabel>{difference.typicalLabel}</SectionLabel>{difference.typical.map(item => <p key={item}><span>×</span>{item}</p>)}</div><div className="comparison-card bright"><div className="mini-brand"><span className="brand-mark">N</span> NORTH WEAVE MILLS</div>{difference.nwm.map(item => <p key={item}><Check size={16} /><span>{item}</span></p>)}</div></div></section>;
+  const [heading, ...accent] = difference.title.split(". ");
+  return <section className="difference section-pad"><h2>{heading}{accent.length > 0 && <>. <em>{accent.join(". ")}</em></>}</h2><div className="comparison"><div className="comparison-card muted"><SectionLabel>{difference.typicalLabel}</SectionLabel>{difference.typical.map(item => <p key={item}><span>×</span>{item}</p>)}</div><div className="comparison-card bright"><div className="mini-brand"><img className="comparison-logo" src="/assets/nwm-mark-transparent.png" alt="NWM" /> NORTH WEAVE MILLS</div>{difference.nwm.map(item => <p key={item}><Check size={16} /><span>{item}</span></p>)}</div></div></section>;
 }
 
 export function WorkSection() {
@@ -222,21 +262,38 @@ export function WorkSection() {
 
   React.useEffect(() => {
     const videos = document.querySelectorAll(".work-grid video");
+    const loadVideo = (video) => {
+      if (video.getAttribute("src")) return;
+      video.src = video.dataset.src;
+      video.preload = "auto";
+      video.load();
+    };
+    const preloadObserver = new IntersectionObserver((entries) => {
+      entries.forEach(({ isIntersecting, target }) => {
+        if (!isIntersecting) return;
+        loadVideo(target);
+        preloadObserver.unobserve(target);
+      });
+    }, { rootMargin: "800px" });
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(({ isIntersecting, target }) => {
         if (isIntersecting) {
-          target.preload = "auto";
+          loadVideo(target);
           target.play().catch(() => {});
         } else {
           target.pause();
         }
       });
     }, { rootMargin: "200px" });
-    videos.forEach((video) => observer.observe(video));
-    return () => observer.disconnect();
+    videos.forEach((video) => { preloadObserver.observe(video); observer.observe(video); });
+    return () => {
+      preloadObserver.disconnect();
+      observer.disconnect();
+      videos.forEach((video) => video.pause());
+    };
   }, []);
 
-  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><SectionLabel>{work.label}</SectionLabel><h2>{work.titleBefore}<br /><em>{work.titleEmphasis}</em></h2></div><a className="text-link" href="#book">{work.cta} <ArrowUpRight size={16} /></a></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video src={workVideos[index]} muted loop playsInline preload="none" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} decoding="async" />}</figure>)}</div></section>;
+  return <section className="selected-work section-pad" id="work"><div className="section-heading"><div><h2>{work.titleBefore} <em>{work.titleEmphasis}</em></h2></div></div><div className="work-grid" role="region" aria-label={work.label} tabIndex={0}>{selectedWorkImages.map((image, index) => <figure className={`logo-card-${index + 1}`} key={image}>{workVideos[index] ? <video data-src={`${workVideos[index]}?v=20261101-card5-new`} poster={workVideos[index].replace(".mp4", "-poster.webp")} muted loop playsInline preload="none" aria-label={work.captions[index]} /> : <img src={image} alt={work.captions[index]} decoding="async" />}</figure>)}</div></section>;
 }
 
 export function ClosingSection() {

@@ -3,6 +3,7 @@ import { ArrowUpRight, X } from "lucide-react";
 import { useLanguage } from "../i18n";
 import { SectionLabel } from "./SiteChrome";
 import ContactForm from "./ContactForm";
+import CategoryPicker from "./CategoryPicker";
 import { FORM_RECIPIENT } from "../data/contact";
 
 export function BookingSection() {
@@ -21,13 +22,11 @@ export function BookingSection() {
       <p>{t.description}</p>
       {mode === null ? <div className="comparison booking-options">
         <button className="comparison-card booking-option" type="button" onClick={() => setMode("inquiry")}>
-          <SectionLabel>{copy.nav.book}</SectionLabel>
           <h3>{t.sendInquiry}</h3>
           <p>{t.description}</p>
           <span className="booking-option-action">{t.sendInquiry} <ArrowUpRight size={16} /></span>
         </button>
         <button className="comparison-card bright booking-option" type="button" onClick={() => setMode("brief")}>
-          <SectionLabel>{t.briefLabel}</SectionLabel>
           <h3>{t.briefLabel}</h3>
           <p>{t.briefDescription}</p>
           <span className="booking-option-action">{t.openBrief} <ArrowUpRight size={16} /></span>
@@ -36,11 +35,10 @@ export function BookingSection() {
         <div className="comparison-card booking-form-card">
           <div className="booking-form-card-heading">
             <div>
-              <SectionLabel>{mode === "inquiry" ? "Book a Call" : "Project Brief"}</SectionLabel>
               <h3>{mode === "inquiry" ? t.sendInquiry : t.briefLabel}</h3>
               <p>{mode === "inquiry" ? t.description : t.briefDescription}</p>
             </div>
-            <button className="booking-close" disabled={sending} type="button" aria-label={copy.nav.close} onClick={() => setMode(null)}><X size={13} aria-hidden="true" /><span>{copy.nav.close}</span></button>
+            <button className="booking-close" disabled={sending} type="button" aria-label={copy.nav.close} onClick={() => setMode(null)}><X size={16} aria-hidden="true" /></button>
           </div>
           {mode === "inquiry" ? <ContactForm id="inquiry-form" submitLabel={t.sendInquiry} onBusyChange={setSending}>
             <FormSettings type="inquiry" />
@@ -55,7 +53,35 @@ export function BookingSection() {
 }
 
 function ProjectBrief({ t, onBusyChange }) {
-  return <ContactForm className="brief-form" submitLabel={t.sendBrief} onBusyChange={onBusyChange}><FormSettings type="brief" /><div className="form-grid"><label>{t.brand}<input name="brand_name" maxLength={200} required type="text" placeholder={t.brandPlaceholder} /></label><label>{t.instagram}<input name="instagram" maxLength={200} type="text" placeholder="@yourbrand" /></label></div><div className="form-grid"><label>{t.contactEmail}<input name="email" maxLength={254} required type="email" placeholder="you@brand.com" /></label><label>{t.total}<input name="total_pieces" type="number" min="1" max="999999999" step="1" placeholder="e.g. 500" /></label></div><label>{t.product}<input name="product_type" maxLength={1000} type="text" placeholder={t.productPlaceholder} /></label><div className="form-grid"><label>{t.colours}<input name="colours" maxLength={1000} type="text" placeholder={t.coloursPlaceholder} /></label><label>{t.pieces}<input name="pieces_per_style" maxLength={2000} type="text" placeholder={t.piecesPlaceholder} /></label></div><fieldset><legend>{t.techPacks}</legend><label className="radio-label"><input name="tech_packs_available" type="radio" value="yes" /> {t.yes}</label><label className="radio-label"><input name="tech_packs_available" type="radio" value="no" /> {t.no}</label></fieldset><FormNotice /><FormPrivacyNotice /></ContactForm>;
+  const [techPacks, setTechPacks] = React.useState("");
+  return <ContactForm className="brief-form" submitLabel={t.sendBrief} incompleteMessage={t.incomplete} onBusyChange={onBusyChange}>
+    <FormSettings type="brief" />
+    <div className="form-grid">
+      <label>{t.contactName}<input name="name" maxLength={200} required autoComplete="name" placeholder="Samoon" /></label>
+      <label>{t.brand}<input name="brand_name" maxLength={200} required autoComplete="organization" placeholder={t.brandPlaceholder} /></label>
+    </div>
+    <div className="form-grid">
+      <label>{t.contactEmail}<input name="email" maxLength={254} required type="email" autoComplete="email" placeholder="you@brand.com" /></label>
+      <label>{t.phone}<input name="phone" maxLength={80} type="tel" autoComplete="tel" placeholder="+49 176 3178 4594" /></label>
+    </div>
+    <div className="form-grid">
+      <label>{t.country}<input name="country" maxLength={100} autoComplete="country-name" placeholder="Germany" /></label>
+      <label>{t.instagram}<input name="instagram" maxLength={200} placeholder="@yourbrand" /></label>
+    </div>
+    <CategoryPicker label={t.product} placeholder={t.chooseCategory} />
+    <div className="form-grid">
+      <label>{t.total}<input name="total_pieces" type="number" min="1" max="999999999" step="1" placeholder="500" /></label>
+      <label>{t.deliveryDate}<input name="target_delivery_date" type="date" /></label>
+    </div>
+    <div className="form-grid">
+      <label>{t.targetPrice}<input name="target_price" maxLength={100} placeholder="EUR 25" /></label>
+      <label>{t.colours}<input name="colours" maxLength={1000} placeholder={t.coloursPlaceholder} /></label>
+    </div>
+    <label>{t.pieces}<input name="pieces_per_style" maxLength={2000} placeholder={t.piecesPlaceholder} /></label>
+    <fieldset><legend>{t.techPacks}</legend><label className="radio-label"><input name="tech_packs_available" type="radio" value="yes" checked={techPacks === "yes"} onChange={() => setTechPacks("yes")} onClick={() => { if (techPacks === "yes") setTechPacks(""); }} /> {t.yes}</label><label className="radio-label"><input name="tech_packs_available" type="radio" value="no" checked={techPacks === "no"} onChange={() => setTechPacks("no")} onClick={() => { if (techPacks === "no") setTechPacks(""); }} /> {t.no}</label></fieldset>
+    <label className="brief-upload">{t.upload}<input name="attachment" type="file" accept=".pdf,.jpg,.jpeg,.png" /></label>
+    <FormNotice /><FormPrivacyNotice />
+  </ContactForm>;
 }
 
 function FormSettings({ type }) {

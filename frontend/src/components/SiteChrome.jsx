@@ -11,10 +11,17 @@ export class ScrollEffects extends React.Component {
     this.headerSections = Array.from(document.querySelectorAll("main > section, main > .ticker"));
     this.handleScroll();
     window.addEventListener("scroll", this.handleScroll, { passive: true });
+    this.bookingObserver = new IntersectionObserver(([entry]) => {
+      document.documentElement.classList.toggle("mobile-cta-booking-visible", entry.isIntersecting);
+    });
+    const booking = document.getElementById("book");
+    if (booking) this.bookingObserver.observe(booking);
   }
 
   componentWillUnmount() {
     window.removeEventListener("scroll", this.handleScroll);
+    this.bookingObserver?.disconnect();
+    document.documentElement.classList.remove("mobile-cta-booking-visible");
     document.documentElement.style.removeProperty("--header-effect-progress");
   }
 
@@ -63,7 +70,7 @@ const NAV_LINKS = [
 ];
 
 function LanguagePicker({ mobile = false }) {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, copy } = useLanguage();
   const [open, setOpen] = React.useState(false);
   const pickerRef = React.useRef(null);
   const current = languageOptions.find(({ code }) => code === language) || languageOptions[0];
@@ -83,13 +90,13 @@ function LanguagePicker({ mobile = false }) {
   }, []);
 
   return <div className={`language-picker ${mobile ? "mobile-language-picker" : "desktop-language-picker"}`} ref={pickerRef}>
-    <button className="language-trigger" type="button" aria-label="Choose language" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(value => !value)}>
+    <button className="language-trigger" type="button" aria-label={copy.nav.languageSelect} aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen(value => !value)}>
       <Globe2 size={15} aria-hidden="true" />
-      <span>{mobile ? current.short : "LANGUAGE"}</span>
+      <span>{mobile ? current.short : copy.nav.language}</span>
       <ChevronDown className={open ? "is-open" : ""} size={13} aria-hidden="true" />
     </button>
-    {open && <div className="language-menu" role="listbox" aria-label="Language">
-      {languageOptions.map(({ code, label }) => <button className={language === code ? "is-active" : ""} type="button" role="option" aria-selected={language === code} key={code} onClick={() => { setLanguage(code); window.localStorage.setItem("nwm-language", code); setOpen(false); }}>{label}</button>)}
+    {open && <div className="language-menu" role="listbox" aria-label={copy.nav.language}>
+      {languageOptions.map(({ code, label }) => <button className={language === code ? "is-active" : ""} type="button" role="option" aria-selected={language === code} key={code} onClick={() => { setLanguage(code); try { window.localStorage.setItem("nwm-language", code); } catch { /* Language still changes when storage is unavailable. */ } setOpen(false); }}>{label}</button>)}
     </div>}
   </div>;
 }
@@ -151,7 +158,7 @@ export function Header({ menuOpen, onToggle }) {
       </nav>
       <div className="mobile-nav-actions">
         <LanguagePicker mobile />
-        <button className="menu-button" onClick={onToggle} aria-label={menuOpen ? "Close menu" : "Open menu"}>
+        <button className="menu-button" onClick={onToggle} aria-expanded={menuOpen} aria-controls="mobile-menu" aria-label={menuOpen ? "Close menu" : "Open menu"}>
           {menuOpen ? <X size={22} /> : <Menu size={24} />}
         </button>
       </div>
@@ -163,10 +170,33 @@ export function Header({ menuOpen, onToggle }) {
 
 export function MobileMenu({ open, onClose }) {
   const { copy } = useLanguage();
+  const menuRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!open) return undefined;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    menuRef.current?.querySelector("button")?.focus();
+    const handleKey = (event) => {
+      if (event.key === "Escape") { onClose(); return; }
+      if (event.key !== "Tab") return;
+      const links = menuRef.current?.querySelectorAll("a, button");
+      if (!links?.length) return;
+      const first = links[0], last = links[links.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKey);
+      previousFocus?.focus();
+    };
+  }, [open, onClose]);
   if (!open) return null;
   return (
     <>
-      <div className="mobile-menu">
+      <div className="mobile-menu" id="mobile-menu" ref={menuRef} role="dialog" aria-modal="true" aria-label={copy.nav.capabilities}>
         <div className="mobile-menu-top">
           <span className="brand"><img className="brand-logo" src="/assets/nwm-mark-transparent.png" alt="North Weave Mills" /></span>
           <button onClick={onClose}>{copy.nav.close}</button>
@@ -186,10 +216,9 @@ export function Hero() {
   const { copy } = useLanguage();
   return (
     <section className="hero" id="top">
-      <video className="hero-video" src="/assets/dashboard-video.mp4" autoPlay muted loop playsInline preload="metadata" aria-label="Apparel production footage" />
+      <video className="hero-video" src="/assets/dashboard-video.mp4?v=20261101-trim29" poster="/assets/dashboard-video-poster.webp" autoPlay muted loop playsInline preload="auto" aria-label="Apparel production footage" />
       <div className="hero-overlay" />
       <div className="hero-content">
-        <SectionLabel>{copy.hero.label}</SectionLabel>
         <h1>
           <span className="hero-title-line"><span>{copy.hero.line1}</span></span>
           <span className="hero-title-line"><span><em className="hero-structured-word">{copy.hero.emphasis}</em> {copy.hero.line2}</span></span>
@@ -200,7 +229,6 @@ export function Hero() {
           <a className="scroll-link" href="#stats">{copy.hero.scroll} <ArrowDownRight size={16} /></a>
         </div>
       </div>
-      <span className="hero-note">{copy.hero.film}</span>
     </section>
   );
 }

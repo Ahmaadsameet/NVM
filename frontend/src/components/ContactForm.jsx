@@ -4,13 +4,13 @@ import { useLanguage } from "../i18n";
 import { FORM_ACTION } from "../data/contact";
 
 // These byte limits match contact.php. Check UTF-8 length as well as native maxLength.
-const limits = { name: 200, brand_name: 200, email: 254, instagram: 200, product_type: 1000, total_pieces: 10, colours: 1000, pieces_per_style: 2000, message: 10000 };
+const limits = { name: 200, phone: 80, country: 100, target_delivery_date: 10, target_price: 100, brand_name: 200, email: 254, instagram: 200, product_type: 1000, total_pieces: 10, colours: 1000, pieces_per_style: 2000, message: 10000 };
 const messages = {
   en: { failed: "We couldn't confirm that your enquiry was sent. Your details are still here. Please try again or email us directly.", long: "This field is too long. Please shorten it.", sending: "Sending…" },
   de: { failed: "Der Versand Ihrer Anfrage konnte nicht bestätigt werden. Ihre Angaben bleiben erhalten. Bitte versuchen Sie es erneut oder schreiben Sie uns direkt.", long: "Diese Angabe ist zu lang. Bitte kürzen Sie den Text.", sending: "Wird gesendet…" },
 };
 
-export default function ContactForm({ children, submitLabel, onBusyChange, ...props }) {
+export default function ContactForm({ children, submitLabel, incompleteMessage, onBusyChange, ...props }) {
   const { language } = useLanguage();
   const t = messages[language] || messages.en;
   const [pending, setPending] = React.useState(false);
@@ -28,7 +28,11 @@ export default function ContactForm({ children, submitLabel, onBusyChange, ...pr
     if (inFlight.current) return;
     const form = event.currentTarget;
     for (const input of form.querySelectorAll("input, textarea")) validateLength(input);
-    if (!form.reportValidity()) return;
+    if (!form.checkValidity()) {
+      if (incompleteMessage) setError(incompleteMessage);
+      form.reportValidity();
+      return;
+    }
     inFlight.current = true;
     setPending(true);
     onBusyChange?.(true);
@@ -60,7 +64,7 @@ export default function ContactForm({ children, submitLabel, onBusyChange, ...pr
   }
 
   if (success) return <div className="success" role="status">{success}</div>;
-  return <form {...props} action={FORM_ACTION} method="POST" onSubmit={submit} aria-busy={pending} onInput={event => { if (typeof event.target.setCustomValidity === "function") validateLength(event.target); }}>
+  return <form {...props} action={FORM_ACTION} method="POST" encType="multipart/form-data" onSubmit={submit} aria-busy={pending} onInput={event => { if (typeof event.target.setCustomValidity === "function") validateLength(event.target); setError(""); }}>
     {children}
     <button className="solid-button" type="submit" disabled={pending}>{pending ? t.sending : submitLabel}<ArrowUpRight size={16} aria-hidden="true" /></button>
     {error && <p className="form-error" role="alert">{error}</p>}

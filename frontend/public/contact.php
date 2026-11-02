@@ -2,8 +2,9 @@
 declare(strict_types=1);
 
 // ALL-INKL executes this file; Vite copies it unchanged into dist/.
-const CONTACT_RECIPIENT = 'samoon@northweavemills.com';
-const CONTACT_SENDER = 'samoon@northweavemills.com';
+const CONTACT_RECIPIENT = 'info@northweavemills.com';
+const CONTACT_SENDER = 'info@northweavemills.com';
+const CONTACT_RETURN_PATH = 'info@northweavemills.com';
 
 header('Content-Type: text/html; charset=UTF-8');
 header('Cache-Control: no-store');
@@ -112,9 +113,6 @@ if ($method !== 'POST') {
     header('Allow: POST');
     respond(405, 'method');
 }
-if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 32768) {
-    respond(413, 'invalid');
-}
 // Honeypot: automated submissions that fill this invisible field are rejected.
 if (field('website', 500, false) !== '') {
     respond(422, 'invalid');
@@ -135,6 +133,11 @@ if ($type === 'inquiry') {
     $subject = 'New North Weave Mills inquiry';
     $body = "Name: {$name}\nEmail: {$email}\n\n{$message}";
 } elseif ($type === 'brief') {
+    $name = field('name', 200);
+    $phone = field('phone', 80, false);
+    $country = field('country', 100, false);
+    $delivery = field('target_delivery_date', 10, false);
+    $price = field('target_price', 100, false);
     $brand = field('brand_name', 200);
     $instagram = field('instagram', 200, false);
     $product = field('product_type', 1000, false);
@@ -142,12 +145,22 @@ if ($type === 'inquiry') {
     $techPacks = field('tech_packs_available', 3, false);
     $colours = field('colours', 1000, false);
     $pieces = field('pieces_per_style', 2000, false);
+    if (!in_array($product, ['bikerwear', 'denim', 'leatherwear', 'tracksuits', 'hoodies', 'sportswear'], true)) respond(422, 'invalid', 'product_type');
+    if ($delivery !== '') {
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d', $delivery);
+        if (!$date || $date->format('Y-m-d') !== $delivery) respond(422, 'invalid', 'target_delivery_date');
+    }
     if (($total !== '' && !preg_match('/^[1-9][0-9]{0,8}$/', $total)) || ($techPacks !== '' && !in_array($techPacks, ['yes', 'no'], true))) {
         respond(422, 'invalid', $total !== '' && !preg_match('/^[1-9][0-9]{0,8}$/', $total) ? 'total_pieces' : 'tech_packs_available');
     }
     $subject = 'New North Weave Mills project brief';
     $body = implode("\n", [
         "Brand: {$brand}",
+        "Contact name: {$name}",
+        "Phone / WhatsApp: {$phone}",
+        "Country: {$country}",
+        "Target delivery date: {$delivery}",
+        "Target price per piece: {$price}",
         'Instagram: ' . ($instagram !== '' ? $instagram : 'Not provided'),
         "Contact email: {$email}",
         "Product: {$product}",
@@ -160,6 +173,25 @@ if ($type === 'inquiry') {
     respond(422, 'invalid');
 }
 
+
+$attachment = null;
+if (isset($_FILES['attachment'])) {
+    $upload = $_FILES['attachment'];
+    if (!is_array($upload) || !is_int($upload['error'] ?? null)) respond(422, 'invalid', 'attachment');
+    if ($upload['error'] !== UPLOAD_ERR_NO_FILE) {
+        if ($type !== 'brief' || $upload['error'] !== UPLOAD_ERR_OK ||
+            !is_int($upload['size'] ?? null) || $upload['size'] < 1 ||
+            !is_string($upload['tmp_name'] ?? null) || !is_uploaded_file($upload['tmp_name'])) {
+            respond(422, 'invalid', 'attachment');
+        }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($upload['tmp_name']);
+        $extensions = ['application/pdf' => 'pdf', 'image/jpeg' => 'jpg', 'image/png' => 'png'];
+        if (!isset($extensions[$mime])) respond(422, 'invalid', 'attachment');
+        $data = file_get_contents($upload['tmp_name']);
+        if ($data === false) respond(503, 'unavailable');
+        $attachment = ['mime' => $mime, 'name' => 'project-brief.' . $extensions[$mime], 'data' => $data];
+    }
+}
 
 // Shared, locked counters live outside the web root. No form details or raw IPs are stored.
 // shortcut: this local-file limiter assumes one web server; use shared counters if hosting scales to multiple servers.
@@ -226,7 +258,17 @@ $headers = [
 ];
 $body = str_replace(["\r\n", "\r"], "\n", $body);
 $encodedBody = chunk_split(base64_encode(str_replace("\n", "\r\n", $body)));
-$sent = function_exists('mail') && @mail(CONTACT_RECIPIENT, $subject, $encodedBody, $headers);
+if ($attachment !== null) {
+    $boundary = 'nwm-' . bin2hex(random_bytes(24));
+    $headers['Content-Type'] = 'multipart/mixed; boundary="' . $boundary . '"';
+    unset($headers['Content-Transfer-Encoding']);
+    $encodedBody = '--' . $boundary . "\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . $encodedBody
+        . "\r\n--" . $boundary . "\r\nContent-Type: " . $attachment['mime']
+        . "\r\nContent-Disposition: attachment; filename=\"" . $attachment['name'] . "\"\r\nContent-Transfer-Encoding: base64\r\n\r\n"
+        . chunk_split(base64_encode($attachment['data'])) . "\r\n--" . $boundary . "--\r\n";
+}
+// The envelope sender controls Return-Path; keep it independent of form input.
+$sent = function_exists('mail') && @mail(CONTACT_RECIPIENT, $subject, $encodedBody, $headers, '-f' . CONTACT_RETURN_PATH);
 if (!$sent) {
     error_log('North Weave Mills contact form: mail transport did not accept the message.');
     respond(503, 'failed');

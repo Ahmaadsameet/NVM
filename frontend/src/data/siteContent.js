@@ -1,9 +1,9 @@
 export const capabilities = [
+  ["Bikerwear", "Protective silhouettes, reinforced seams, clean hardware.", "biker"],
   ["Denim", "Jeans, jackets and heavy twill with consistent washes.", "denim"],
   ["Leatherwear", "Jackets and separates in full-grain and nappa leather.", "leather"],
-  ["Bikerwear", "Protective silhouettes, reinforced seams, clean hardware.", "biker"],
-  ["Fashionwear", "Cut and sew ready-to-wear across seasonal drops.", "fashion"],
-  ["Knitwear", "Fully fashioned knits and jersey programs.", "knit"],
+  ["Tracksuits", "Track jackets, pants and coordinated tracksuit sets.", "fashion"],
+  ["Hoodies", "Hoodies, zip-up styles and crewnecks.", "knit"],
   ["Sportswear", "Technical fabrics, performance trims, precise finishing.", "sport"]
 ];
 
